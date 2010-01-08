@@ -19,7 +19,7 @@ sub create_db {
     if ( not defined $dist ) {
         warn "no driver found for this machine distribution.\n\n",
             "list of existing distribution drivers:\n",
-            map { s/^.*:://; "\t$_\n" } $self->dists;
+            map { ( my $d = $_ ) =~ s/^.*:://; "\t$d\n" } $self->dists;
         die "\n";
     }
 
