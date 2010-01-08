@@ -11,6 +11,16 @@ use Module::Pluggable
     sub_name    => 'dists',
     search_path => __PACKAGE__.'::Distribution';
 
+
+# -- public methods
+
+=method create_db();
+
+Fetch the list of available modules, and creates a sqlite database with
+this information.
+
+=cut
+
 sub create_db {
     my $self = shift;
 
