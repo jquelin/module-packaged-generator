@@ -5,8 +5,25 @@ use warnings;
 package Module::Packaged::Generator;
 # ABSTRACT: build list of modules packaged by a linux distribution
 
+use List::Util qw{ first };
+use Module::Pluggable
+    require     => 1,
+    sub_name    => 'dists',
+    search_path => __PACKAGE__.'::Distribution';
+
 sub create_db {
     my $self = shift;
+
+    # try to find a module than can provide the list of modules
+    my $dist = first { $_->detect } $self->dists;
+    if ( not defined $dist ) {
+        warn "no driver found for this machine distribution.\n\n",
+            "list of existing distribution drivers:\n",
+            map { s/^.*:://; "\t$_\n" } $self->dists;
+        die "\n";
+    }
+
+    print "found a distribution driver: $dist\n";
 }
 
 1;
