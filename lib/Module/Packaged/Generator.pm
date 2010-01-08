@@ -5,6 +5,10 @@ use warnings;
 package Module::Packaged::Generator;
 # ABSTRACT: build list of modules packaged by a linux distribution
 
+sub create_db {
+    my $self = shift;
+}
+
 1;
 __END__
 
