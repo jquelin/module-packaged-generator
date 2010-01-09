@@ -40,6 +40,9 @@ sub list {
 1;
 __END__
 
+=for Pod::Coverage::TrustPod
+    Module
+
 =head1 DESCRIPTION
 
 This module is the L<Module::Packaged::Generator::Distribution> driver
