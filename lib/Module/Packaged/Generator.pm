@@ -58,7 +58,6 @@ sub create_db {
         bar_width => 50,
         remove    => 1,
         name      => $prefix,
-        ETA       => 'linear',
     } );
     my $next_update = 0;
     foreach my $i ( 0 .. $#modules ) {
@@ -67,15 +66,14 @@ sub create_db {
         $next_update = $progress->update($_)
             if $i >= $next_update;
     }
+    $progress->update( scalar(@modules) );
     $sth->finish;
     print "${prefix}: done\n";
-    print "creating index on modules: ";
+    print "creating indexes: modules ";
     $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    print "done\n";
-    print "creating index on dists: ";
+    print "dists ";
     $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    print "done\n";
-    print "creating index on packages: ";
+    print "packages ";
     $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
     print "done\n";
     $dbh->disconnect;
