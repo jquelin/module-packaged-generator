@@ -11,6 +11,7 @@ use Module::Pluggable
     require     => 1,
     sub_name    => 'dists',
     search_path => __PACKAGE__.'::Distribution';
+use Term::ProgressBar::Quiet;
 
 
 # -- public methods
@@ -51,16 +52,32 @@ sub create_db {
         );
     ");
     my $sth = $dbh->prepare("INSERT INTO module (module, version, pkgname) VALUES (?,?,?);");
-    foreach my $m ( @modules ) {
+    my $prefix = "inserting modules in db";
+    my $progress = Term::ProgressBar->new( {
+        count     => scalar(@modules),
+        bar_width => 50,
+        remove    => 1,
+        name      => $prefix,
+        ETA       => 'linear',
+    } );
+    my $next_update = 0;
+    foreach my $i ( 0 .. $#modules ) {
+        my $m = $modules[$i];
         $sth->execute(@$m);
+        $next_update = $progress->update($_)
+            if $i >= $next_update;
     }
     $sth->finish;
-    print "creating index on modules\n";
+    print "${prefix}: done\n";
+    print "creating index on modules: ";
     $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    print "creating index on dists\n";
+    print "done\n";
+    print "creating index on dists: ";
     $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    print "creating index on packages\n";
+    print "done\n";
+    print "creating index on packages: ";
     $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+    print "done\n";
     $dbh->disconnect;
 }
 
