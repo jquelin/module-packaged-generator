@@ -14,8 +14,8 @@ sub list {
 
     my $db = URPM::DB->open;
     my $urpm = URPM->new;
-    $urpm->parse_synthesis($_) for glob "/var/lib/urpmi/synthesis.hdlist.*";
-    $urpm->parse_synthesis($_) for glob "/var/lib/urpmi/*/synthesis.hdlist.cz";
+    $urpm->parse_synthesis($_) for grep {!/32/} glob "/var/lib/urpmi/synthesis.hdlist.*";
+    $urpm->parse_synthesis($_) for grep {!/32/} glob "/var/lib/urpmi/*/synthesis.hdlist.cz";
 
     my @modules;
     $urpm->traverse( sub {
