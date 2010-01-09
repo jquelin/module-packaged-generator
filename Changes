@@ -2,5 +2,9 @@ Changelog for Module-Packaged-Generator
 
 {{$NEXT}}
 
+1.100091  2010-01-09 12:18:42 Europe/Paris
+ - using a module abstraction
+ - fetching & recording cpan dist name
+
 1.100090  2010-01-09 11:00:30 Europe/Paris
  - initial release
