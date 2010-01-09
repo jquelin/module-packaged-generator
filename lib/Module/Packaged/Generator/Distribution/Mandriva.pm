@@ -5,6 +5,7 @@ use warnings;
 package Module::Packaged::Generator::Distribution::Mandriva;
 # ABSTRACT: mandriva driver to fetch available modules
 
+use relative -to => 'Module::Packaged::Generator', -aliased => qw{ Module };
 use base qw{ Module::Packaged::Generator::Distribution };
 
 sub match { -f '/etc/mandriva-release'; }
@@ -24,8 +25,11 @@ sub list {
         my $pkgname = $pkg->name;
         foreach my $p ( @provides ) {
             next unless $p =~ /^perl\(([^)]+)\)(\[== (.*)\])?$/;
-            my ($module, $version) = ($1, $3);
-            push @modules, [ $module, $version, $pkgname ];
+            push @modules, Module->new( {
+                name    => $1,
+                version => $3,
+                pkgname => $pkgname,
+            } );
         }
     } );
     return @modules;

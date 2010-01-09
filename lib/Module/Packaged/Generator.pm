@@ -62,7 +62,7 @@ sub create_db {
     my $next_update = 0;
     foreach my $i ( 0 .. $#modules ) {
         my $m = $modules[$i];
-        $sth->execute(@$m);
+        $sth->execute($m->name, $m->version, $m->pkgname);
         $next_update = $progress->update($_)
             if $i >= $next_update;
     }
