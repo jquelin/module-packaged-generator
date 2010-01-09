@@ -27,7 +27,7 @@ sub create_db {
     my $self = shift;
 
     # try to find a module than can provide the list of modules
-    my $driver = first { $_->detect } $self->dists;
+    my $driver = first { $_->match } $self->dists;
     if ( not defined $driver ) {
         warn "no driver found for this machine distribution.\n\n",
             "list of existing distribution drivers:\n",

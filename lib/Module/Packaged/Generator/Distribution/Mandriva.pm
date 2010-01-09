@@ -7,7 +7,7 @@ package Module::Packaged::Generator::Distribution::Mandriva;
 
 use base qw{ Module::Packaged::Generator::Distribution };
 
-sub detect { -f '/etc/mandriva-release'; }
+sub match { -f '/etc/mandriva-release'; }
 
 sub list {
     require URPM;

@@ -7,17 +7,17 @@ package Module::Packaged::Generator::Distribution;
 
 # -- public methods
 
-=method my $bool = $class->detect();
+=method my $bool = $class->match;
 
 Return true if the class has detected that it can provides information
 on the current machine.
 
 =cut
 
-sub detect { die "unimplemented" }
+sub match { die "unimplemented" }
 
 
-=method my @modules = $class->list();
+=method my @modules = $class->list;
 
 Return the list of available Perl modules for this distribution.
 
