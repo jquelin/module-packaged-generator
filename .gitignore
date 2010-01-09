@@ -16,3 +16,7 @@ _build
 
 # avoid archives of this distribution
 Module-Packaged-Generator-*
+
+# databases created by app
+cpan_*.db
+cpan_*.db-journal
