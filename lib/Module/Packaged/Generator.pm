@@ -51,7 +51,11 @@ sub create_db {
             pkgname     TEXT NOT NULL
         );
     ");
-    my $sth = $dbh->prepare("INSERT INTO module (module, version, pkgname) VALUES (?,?,?);");
+    my $sth = $dbh->prepare("
+        INSERT
+            INTO   module (module, version, dist, pkgname)
+            VALUES        (?,?,?,?);
+    ");
     my $prefix = "inserting modules in db";
     my $progress = Term::ProgressBar->new( {
         count     => scalar(@modules),
@@ -62,7 +66,7 @@ sub create_db {
     my $next_update = 0;
     foreach my $i ( 0 .. $#modules ) {
         my $m = $modules[$i];
-        $sth->execute($m->name, $m->version, $m->pkgname);
+        $sth->execute($m->name, $m->version, $m->dist, $m->pkgname);
         $next_update = $progress->update($_)
             if $i >= $next_update;
     }
