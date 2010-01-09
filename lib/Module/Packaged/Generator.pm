@@ -5,6 +5,7 @@ use warnings;
 package Module::Packaged::Generator;
 # ABSTRACT: build list of modules packaged by a linux distribution
 
+use DBI;
 use List::Util qw{ first };
 use Module::Pluggable
     require     => 1,
@@ -25,15 +26,42 @@ sub create_db {
     my $self = shift;
 
     # try to find a module than can provide the list of modules
-    my $dist = first { $_->detect } $self->dists;
-    if ( not defined $dist ) {
+    my $driver = first { $_->detect } $self->dists;
+    if ( not defined $driver ) {
         warn "no driver found for this machine distribution.\n\n",
             "list of existing distribution drivers:\n",
             map { ( my $d = $_ ) =~ s/^.*:://; "\t$d\n" } $self->dists;
         die "\n";
     }
 
-    print "found a distribution driver: $dist\n";
+    print "found a distribution driver: $driver\n";
+    ( my $dist = $driver ) =~ s/^.*:://;
+    my @modules = $driver->list;
+
+    # save modules in a db
+    my $file = "cpan_$dist.db";
+    unlink($file) if -f $file;
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
+    $dbh->do("
+        CREATE TABLE module (
+            module      TEXT NOT NULL,
+            version     TEXT,
+            dist        TEXT,
+            pkgname     TEXT NOT NULL
+        );
+    ");
+    my $sth = $dbh->prepare("INSERT INTO module (module, version, pkgname) VALUES (?,?,?);");
+    foreach my $m ( @modules ) {
+        $sth->execute(@$m);
+    }
+    $sth->finish;
+    print "creating index on modules\n";
+    $dbh->do("CREATE INDEX module__module  on module ( module  );");
+    print "creating index on dists\n";
+    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
+    print "creating index on packages\n";
+    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+    $dbh->disconnect;
 }
 
 1;
