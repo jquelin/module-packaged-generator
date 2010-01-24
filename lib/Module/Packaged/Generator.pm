@@ -63,41 +63,6 @@ sub create_db {
     return $dbh;
 }
 
-=pod
-
-    my $sth = $dbh->prepare("
-        INSERT
-            INTO   module (module, version, dist, pkgname)
-            VALUES        (?,?,?,?);
-    ");
-    my $prefix = "inserting modules in db";
-    my $progress = Term::ProgressBar->new( {
-        count     => scalar(@modules),
-        bar_width => 50,
-        remove    => 1,
-        name      => $prefix,
-    } );
-    my $next_update = 0;
-    foreach my $i ( 0 .. $#modules ) {
-        my $m = $modules[$i];
-        $sth->execute($m->name, $m->version, $m->dist, $m->pkgname);
-        $next_update = $progress->update($_)
-            if $i >= $next_update;
-    }
-    $progress->update( scalar(@modules) );
-    $sth->finish;
-    print "${prefix}: done\n";
-    print "creating indexes: modules ";
-    $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    print "dists ";
-    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    print "packages ";
-    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
-    print "done\n";
-    $dbh->disconnect;
-}
-
-=cut
 
 1;
 __END__

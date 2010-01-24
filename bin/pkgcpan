@@ -32,7 +32,47 @@ my $file = "cpan_$dist.db";
 my $dbh  = Module::Packaged::Generator->create_db($file);
 
 
+# fetch the list of available perl modules
+my @modules = $driver->list;
 
+
+# insert the modules in the database
+my $sth = $dbh->prepare("
+    INSERT
+        INTO   module (module, version, dist, pkgname)
+        VALUES        (?,?,?,?);
+");
+my $prefix = "inserting modules in db";
+my $progress = Term::ProgressBar->new( {
+    count     => scalar(@modules),
+    bar_width => 50,
+    remove    => 1,
+    name      => $prefix,
+} );
+my $next_update = 0;
+foreach my $i ( 0 .. $#modules ) {
+    my $m = $modules[$i];
+    $sth->execute($m->name, $m->version, $m->dist, $m->pkgname);
+    $next_update = $progress->update($_)
+        if $i >= $next_update;
+}
+$progress->update( scalar(@modules) );
+$sth->finish;
+print "${prefix}: done\n";
+
+
+# create indexes in the db to make it faster
+print "creating indexes: modules ";
+$dbh->do("CREATE INDEX module__module  on module ( module  );");
+print "dists ";
+$dbh->do("CREATE INDEX module__dist    on module ( dist    );");
+print "packages ";
+$dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+print "done\n";
+
+
+# all's done, close the db
+$dbh->disconnect;
 
 exit;
 __END__
