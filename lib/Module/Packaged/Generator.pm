@@ -68,9 +68,9 @@ __END__
 
 =head1 DESCRIPTION
 
-This module will fetch modules available as native linux distribution
-package, and wraps that in a sqlite database. This then allow people to
-do analysis, draw CPANTS metrics from it or whatever.
+This module alows to fetch modules available as native Linux (or BSD)
+distribution packages, and wraps them in a sqlite database. This allows
+people to do analysis, draw CPANTS metrics from it or whatever.
 
 Of course, running the utility shipped in this dist will only create the
 database for the current distribution. But that's not our job to do
