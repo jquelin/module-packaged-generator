@@ -11,4 +11,22 @@ use lib catdir( $Bin, updir, 'lib' );
 
 use Module::Packaged::Generator;
 
-Module::Packaged::Generator->create_db;
+# -- main program
+
+# try to find a suitable driver
+my $driver = Module::Packaged::Generator->find_driver;
+if ( not defined $driver ) {
+    my $msg = join "\n",
+        "no driver found for this machine distribution.\n",
+        "list of existing distribution drivers:",
+        map { ( my $d = $_ ) =~ s/^.*:://; "\t$d" }
+        Module::Packaged::Generator->all_drivers;
+    die "$msg\n\n";
+}
+print "found a distribution driver: $driver\n";
+
+#Module::Packaged::Generator->create_db;
+
+
+exit;
+__END__
