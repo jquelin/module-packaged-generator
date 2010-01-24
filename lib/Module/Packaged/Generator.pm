@@ -40,31 +40,16 @@ sub find_driver {
 }
 
 
-=method create_db();
+=method my $dbh = Module::Packaged::Generator->create_db($file);
 
-Fetch the list of available modules, and creates a sqlite database with
-this information.
+Creates a sqlite database with the correct schema. Remove the previous
+C<$file> if it exists. Return the handler on the opened database.
 
 =cut
 
 sub create_db {
-    my $self = shift;
+    my ($self, $file) = @_;
 
-    # try to find a module than can provide the list of modules
-    my $driver = first { $_->match } $self->dists;
-    if ( not defined $driver ) {
-        warn "no driver found for this machine distribution.\n\n",
-            "list of existing distribution drivers:\n",
-            map { ( my $d = $_ ) =~ s/^.*:://; "\t$d\n" } $self->dists;
-        die "\n";
-    }
-
-    print "found a distribution driver: $driver\n";
-    ( my $dist = $driver ) =~ s/^.*:://;
-    my @modules = $driver->list;
-
-    # save modules in a db
-    my $file = "cpan_$dist.db";
     unlink($file) if -f $file;
     my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
     $dbh->do("
@@ -75,6 +60,11 @@ sub create_db {
             pkgname     TEXT NOT NULL
         );
     ");
+    return $dbh;
+}
+
+=pod
+
     my $sth = $dbh->prepare("
         INSERT
             INTO   module (module, version, dist, pkgname)
@@ -106,6 +96,8 @@ sub create_db {
     print "done\n";
     $dbh->disconnect;
 }
+
+=cut
 
 1;
 __END__
