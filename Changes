@@ -2,6 +2,9 @@ Changelog for Module-Packaged-Generator
 
 {{$NEXT}}
 
+1.100240  2010-01-24 12:18:18 Europe/Paris
+ - moving logic in script where it belongs, instead of bloated create_db()
+
 1.100091  2010-01-09 12:18:42 Europe/Paris
  - using a module abstraction
  - fetching & recording cpan dist name
