@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use File::Spec::Functions qw{ catdir updir };
+use Term::ProgressBar::Quiet;
 
 # for dev purposes
 use FindBin qw{ $Bin };

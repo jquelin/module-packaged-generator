@@ -11,7 +11,6 @@ use Module::Pluggable
     require     => 1,
     sub_name    => 'dists',
     search_path => __PACKAGE__.'::Distribution';
-use Term::ProgressBar::Quiet;
 
 
 # -- public methods
