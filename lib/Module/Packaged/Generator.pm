@@ -27,6 +27,19 @@ L<Module::Packaged::Generator::Mandriva>.
 sub all_drivers { return $_[0]->dists; }
 
 
+=method my $driver = Module::Packaged::Generator->find_driver;
+
+Return a driver that can be used on the current machine, or undef if no
+suitable driver was found.
+
+=cut
+
+sub find_driver {
+    my $self = shift;
+    return first { $_->match } $self->dists;
+}
+
+
 =method create_db();
 
 Fetch the list of available modules, and creates a sqlite database with
