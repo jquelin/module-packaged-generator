@@ -10,7 +10,9 @@ use Term::ProgressBar::Quiet;
 use FindBin qw{ $Bin };
 use lib catdir( $Bin, updir, 'lib' );
 
+
 use Module::Packaged::Generator;
+
 
 # -- main program
 
@@ -77,3 +79,19 @@ $dbh->disconnect;
 
 exit;
 __END__
+
+=head1 NAME
+
+pkgcpan - create db of available Perl modules
+
+
+=head1 SYNOPSIS
+
+    pkgcpan
+
+
+=head1 DESCRIPTION
+
+This script will create and populate a sqlite database with the
+available Perl modules for your distribution.
+
