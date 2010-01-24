@@ -5,8 +5,13 @@ use warnings;
 package Module::Packaged::Generator::Distribution::Mandriva;
 # ABSTRACT: mandriva driver to fetch available modules
 
+use Moose;
+
 use relative -to => 'Module::Packaged::Generator', -aliased => qw{ Module };
-use base qw{ Module::Packaged::Generator::Distribution };
+
+extends 'Module::Packaged::Generator::Distribution';
+
+# -- public methods
 
 sub match { -f '/etc/mandriva-release'; }
 
@@ -34,8 +39,6 @@ sub list {
     } );
     return @modules;
 }
-
-
 
 1;
 __END__
