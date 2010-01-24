@@ -3,5 +3,12 @@
 use strict;
 use warnings;
 
+use File::Spec::Functions qw{ catdir updir };
+
+# for dev purposes
+use FindBin qw{ $Bin };
+use lib catdir( $Bin, updir, 'lib' );
+
 use Module::Packaged::Generator;
+
 Module::Packaged::Generator->create_db;
