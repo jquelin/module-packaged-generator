@@ -16,6 +16,17 @@ use Term::ProgressBar::Quiet;
 
 # -- public methods
 
+=method my @drivers = Module::Packaged::Generator->all_drivers();
+
+Return a list of all available drivers supporting a distribution. The
+list is a list of module names (strings) such as
+L<Module::Packaged::Generator::Mandriva>.
+
+=cut
+
+sub all_drivers { return $_[0]->dists; }
+
+
 =method create_db();
 
 Fetch the list of available modules, and creates a sqlite database with
