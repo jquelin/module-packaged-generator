@@ -1,8 +1,19 @@
+#
+# This file is part of Module-Packaged-Generator
+#
+# This software is copyright (c) 2010 by Jerome Quelin.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
 use 5.008;
 use strict;
 use warnings;
 
 package Module::Packaged::Generator;
+BEGIN {
+  $Module::Packaged::Generator::VERSION = '1.111040';
+}
 # ABSTRACT: build list of modules packaged by a linux distribution
 
 use DBI;
@@ -15,27 +26,10 @@ use Module::Pluggable
 
 # -- public methods
 
-=method all_drivers
-
-    my @drivers = Module::Packaged::Generator->all_drivers();
-
-Return a list of all available drivers supporting a distribution. The
-list is a list of module names (strings) such as
-L<Module::Packaged::Generator::Mandriva>.
-
-=cut
 
 sub all_drivers { return $_[0]->dists; }
 
 
-=method find_driver
-
-    my $driver = Module::Packaged::Generator->find_driver;
-
-Return a driver that can be used on the current machine, or undef if no
-suitable driver was found.
-
-=cut
 
 sub find_driver {
     my $self = shift;
@@ -43,14 +37,6 @@ sub find_driver {
 }
 
 
-=method create_db
-
-    my $dbh = Module::Packaged::Generator->create_db($file);
-
-Creates a sqlite database with the correct schema. Remove the previous
-C<$file> if it exists. Return the handler on the opened database.
-
-=cut
 
 sub create_db {
     my ($self, $file) = @_;
@@ -70,7 +56,17 @@ sub create_db {
 
 
 1;
-__END__
+
+
+=pod
+
+=head1 NAME
+
+Module::Packaged::Generator - build list of modules packaged by a linux distribution
+
+=head1 VERSION
+
+version 1.111040
 
 =head1 DESCRIPTION
 
@@ -82,6 +78,29 @@ Of course, running the utility shipped in this dist will only create the
 database for the current distribution. But that's not our job to do
 crazy manipulation with this data, we just provide the data :-)
 
+=head1 METHODS
+
+=head2 all_drivers
+
+    my @drivers = Module::Packaged::Generator->all_drivers();
+
+Return a list of all available drivers supporting a distribution. The
+list is a list of module names (strings) such as
+L<Module::Packaged::Generator::Mandriva>.
+
+=head2 find_driver
+
+    my $driver = Module::Packaged::Generator->find_driver;
+
+Return a driver that can be used on the current machine, or undef if no
+suitable driver was found.
+
+=head2 create_db
+
+    my $dbh = Module::Packaged::Generator->create_db($file);
+
+Creates a sqlite database with the correct schema. Remove the previous
+C<$file> if it exists. Return the handler on the opened database.
 
 =head1 SEE ALSO
 
@@ -110,3 +129,20 @@ L<http://annocpan.org/dist/Module-Packaged-Generator>
 L<http://cpanratings.perl.org/d/Module-Packaged-Generator>
 
 =back
+
+=head1 AUTHOR
+
+Jerome Quelin
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Jerome Quelin.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+
+__END__
+
