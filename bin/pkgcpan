@@ -52,7 +52,7 @@ my $sth = $dbh->prepare("
         VALUES        (?,?,?,?);
 ");
 my $prefix = "inserting modules in db";
-my $progress = Term::ProgressBar->new( {
+my $progress = Term::ProgressBar::Quiet->new( {
     count     => scalar(@modules),
     bar_width => 50,
     remove    => 1,
