@@ -6,6 +6,7 @@ package Module::Packaged::Generator::Distribution::Mandriva;
 # ABSTRACT: mandriva driver to fetch available modules
 
 use Moose;
+use Path::Class;
 
 use relative -to => 'Module::Packaged::Generator', -aliased => qw{ Module };
 
@@ -13,7 +14,12 @@ extends 'Module::Packaged::Generator::Distribution';
 
 # -- public methods
 
-sub match { -f '/etc/mandriva-release'; }
+sub match {
+    my $mdvrel = file( '/etc/mandriva-release' );
+    return unless -f $mdvrel;
+    my $content = $mdvrel->slurp;
+    return ( $content =~ /mandriva/i );
+}
 
 sub list {
     require URPM;
