@@ -8,7 +8,7 @@ package Module::Packaged::Generator::Module;
 use File::HomeDir qw{ my_home };
 use Moose;
 use MooseX::Has::Sugar;
-use Parse::CPAN::Packages;
+use Parse::CPAN::Packages::Fast;
 use Path::Class;
 
 
@@ -47,7 +47,7 @@ has pkgname => ( ro, isa=>'Str',        required   );
 {
     my $pkgfile = file( my_home(), '.cpanplus', '02packages.details.txt.gz' );
     if ( -f $pkgfile ) {
-        my $cpan = Parse::CPAN::Packages->new("$pkgfile");
+        my $cpan = Parse::CPAN::Packages::Fast->new("$pkgfile");
         *_build_dist = sub {
             my $self = shift;
             my $pkg = $cpan->package( $self->name );
