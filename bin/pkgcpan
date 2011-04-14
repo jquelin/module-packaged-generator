@@ -58,6 +58,7 @@ my $progress = Term::ProgressBar::Quiet->new( {
     remove    => 1,
     name      => $prefix,
 } );
+$progress->minor(0);  # we're so fast now that we don't need minor scale
 my $next_update = 0;
 foreach my $i ( 0 .. $#modules ) {
     my $m = $modules[$i];
