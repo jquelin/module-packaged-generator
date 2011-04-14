@@ -8,9 +8,10 @@ package Module::Packaged::Generator::Distribution::Mandriva;
 use Moose;
 use Path::Class;
 
-use relative -to => 'Module::Packaged::Generator', -aliased => qw{ Module };
+use Module::Packaged::Generator::Module;
 
 extends 'Module::Packaged::Generator::Distribution';
+
 
 # -- public methods
 
@@ -36,7 +37,7 @@ sub list {
         my $pkgname = $pkg->name;
         foreach my $p ( @provides ) {
             next unless $p =~ /^perl\(([^)]+)\)(\[== (.*)\])?$/;
-            push @modules, Module->new( {
+            push @modules, Module::Packaged::Generator::Module->new( {
                 name    => $1,
                 version => $3,
                 pkgname => $pkgname,
@@ -48,9 +49,6 @@ sub list {
 
 1;
 __END__
-
-=for Pod::Coverage::TrustPod
-    Module
 
 =head1 DESCRIPTION
 
