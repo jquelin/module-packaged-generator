@@ -27,19 +27,21 @@ sub list {
 
     my $db = URPM::DB->open;
     my $urpm = URPM->new;
-    $urpm->parse_synthesis($_) for grep {!/32/} glob "/var/lib/urpmi/synthesis.hdlist.*";
-    $urpm->parse_synthesis($_) for grep {!/32/} glob "/var/lib/urpmi/*/synthesis.hdlist.cz";
+    $urpm->parse_synthesis($_) for glob "/var/lib/urpmi/*/synthesis.hdlist.cz";
 
     my @modules;
+    my %seen;
     $urpm->traverse( sub {
         my $pkg  = shift;
         my @provides = $pkg->provides;
         my $pkgname = $pkg->name;
         foreach my $p ( @provides ) {
             next unless $p =~ /^perl\(([^)]+)\)(\[== (.*)\])?$/;
+            my ($name, $version) = ($1, $3);
+            next if $seen{ $name }++;
             push @modules, Module::Packaged::Generator::Module->new( {
-                name    => $1,
-                version => $3,
+                name    => $name,
+                version => $version,
                 pkgname => $pkgname,
             } );
         }
