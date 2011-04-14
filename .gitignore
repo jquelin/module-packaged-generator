@@ -1,6 +1,3 @@
-# avoid version control files
-.git
-
 # avoid temp and backup files
 *~
 *#
@@ -12,7 +9,6 @@
 
 # avoid utility files
 .build
-_build
 
 # avoid archives of this distribution
 Module-Packaged-Generator-*
