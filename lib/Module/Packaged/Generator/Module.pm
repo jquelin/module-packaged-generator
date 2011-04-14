@@ -5,7 +5,7 @@ use warnings;
 package Module::Packaged::Generator::Module;
 # ABSTRACT: a class representing a perl module
 
-use File::HomeDir qw{ my_home };
+use File::HomeDir::PathClass qw{ my_home };
 use Moose;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
@@ -41,23 +41,21 @@ has version => ( ro, isa=>'Maybe[Str]'             );
 has dist    => ( ro, isa=>'Maybe[Str]', lazy_build );
 has pkgname => ( ro, isa=>'Str',        required   );
 
-
-# -- initializers & builders
-
+my $CPAN;
 {
-    my $pkgfile = file( my_home(), '.cpanplus', '02packages.details.txt.gz' );
-    if ( -f $pkgfile ) {
-        my $cpan = Parse::CPAN::Packages::Fast->new("$pkgfile");
-        *_build_dist = sub {
-            my $self = shift;
-            my $pkg = $cpan->package( $self->name );
-            return unless $pkg;
-            return $pkg->distribution->dist;
-        }
-    } else {
-        warn "couldn't find a cpanplus index in $pkgfile\n";
-        *_build_dist = sub { return };
-    }
+    # try to locate cpanplus index
+    my $pkgfile = my_home()->file( '.cpanplus', '02packages.details.txt.gz' );
+    die "couldn't find a cpanplus index in $pkgfile\n"
+        unless -f $pkgfile;
+    $CPAN = Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
+}
+
+sub _build_dist {
+    my $self = shift;
+    my $pkg;
+    eval { $pkg = $CPAN->package( $self->name ); };
+    return unless $pkg;
+    return $pkg->distribution->dist;
 }
 
 1;
