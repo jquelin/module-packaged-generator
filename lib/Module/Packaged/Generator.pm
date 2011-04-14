@@ -15,7 +15,9 @@ use Module::Pluggable
 
 # -- public methods
 
-=method my @drivers = Module::Packaged::Generator->all_drivers();
+=method all_drivers
+
+    my @drivers = Module::Packaged::Generator->all_drivers();
 
 Return a list of all available drivers supporting a distribution. The
 list is a list of module names (strings) such as
@@ -26,7 +28,9 @@ L<Module::Packaged::Generator::Mandriva>.
 sub all_drivers { return $_[0]->dists; }
 
 
-=method my $driver = Module::Packaged::Generator->find_driver;
+=method find_driver
+
+    my $driver = Module::Packaged::Generator->find_driver;
 
 Return a driver that can be used on the current machine, or undef if no
 suitable driver was found.
@@ -39,7 +43,9 @@ sub find_driver {
 }
 
 
-=method my $dbh = Module::Packaged::Generator->create_db($file);
+=method create_db
+
+    my $dbh = Module::Packaged::Generator->create_db($file);
 
 Creates a sqlite database with the correct schema. Remove the previous
 C<$file> if it exists. Return the handler on the opened database.
