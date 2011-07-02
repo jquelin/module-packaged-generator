@@ -8,7 +8,7 @@ package Module::Packaged::Generator::Distribution::Mageia;
 use Moose;
 use Path::Class;
 
-extends 'Module::Packaged::Generator::Distribution::Mandriva';
+extends 'Module::Packaged::Generator::Distribution::URPMI';
 
 
 # -- public methods
