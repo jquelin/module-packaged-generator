@@ -9,6 +9,7 @@ package pkgcpan;
 
 use File::Spec::Functions qw{ catdir updir };
 use Getopt::Long::Descriptive;
+use Log::Dispatchouli;
 use Term::ProgressBar::Quiet;
 
 # for dev purposes
@@ -18,15 +19,29 @@ use lib catdir( $Bin, updir, 'lib' );
 
 use Module::Packaged::Generator;
 
+
 # -- parse command-line options
 
 my ($opt, $usage) = describe_options(
     '%c %o',
-    [ 'file|f=s'  => "path to the database file"    ],
+    [ 'file|f=s'  => "path to the database file"       ],
     [],
-    [ 'help|h'    => "print usage message and exit" ],
+    [ 'quiet|q'   => "don't print anything but errors" ],
+    [ 'verbose|v' => "print debug messages"            ],
+    [ 'help|h'    => "print usage message and exit"    ],
 );
 print($usage->text), exit if $opt->help;
+
+
+# -- create logger
+
+my $logger = Log::Dispatchouli->new({
+    ident     => 'pkgcpan',
+    to_stdout => !$opt->quiet,
+    debug     => $opt->verbose,
+    log_pid   => 0,
+    quiet_fatal => [ qw{ stdout stderr } ],
+});
 
 
 # -- main program
@@ -39,9 +54,9 @@ if ( not defined $driver ) {
         "list of existing distribution drivers:",
         map { ( my $d = $_ ) =~ s/^.*:://; "\t$d" }
         Module::Packaged::Generator->all_drivers;
-    die "$msg\n\n";
+    $logger->log_fatal( "$msg\n" );
 }
-print "found a distribution driver: $driver\n";
+$logger->log( "found a distribution driver: $driver" );
 
 
 # create the database
@@ -53,7 +68,9 @@ $dbh->{RaiseError} = 1;
 
 
 # fetch the list of available perl modules
+$logger->log( "fetching list of available perl modules" );
 my @modules = $driver->list;
+$logger->log( "found " . scalar(@modules) . " perl modules" );
 
 
 # insert the modules in the database
@@ -79,22 +96,23 @@ foreach my $i ( 0 .. $#modules ) {
 }
 $progress->update( scalar(@modules) );
 $sth->finish;
-print "${prefix}: done\n";
+$logger->log( "${prefix}: done" );
 
 
 # create indexes in the db to make it faster
-print "creating indexes: modules ";
+$logger->log( "creating indexes:" );
+$logger->log( "  - modules " );
 $dbh->do("CREATE INDEX module__module  on module ( module  );");
-print "dists ";
+$logger->log( "  - dists " );
 $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-print "packages ";
+$logger->log( "  - packages " );
 $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
-print "done\n";
 
 
 # all's done, close the db
 $dbh->commit;
 $dbh->disconnect;
+$logger->log( "database created" );
 
 exit;
 __END__
