@@ -42,20 +42,12 @@ $logger->set_muted( $opt->quiet );
 # -- main program
 
 # try to find a suitable driver
+my $dist = Module::Packaged::Generator->find_dist;
+$logger->log( "linux distribution: $dist" );
 my $driver = Module::Packaged::Generator->find_driver;
-if ( not defined $driver ) {
-    my $msg = join "\n",
-        "no driver found for this machine distribution.\n",
-        "list of existing distribution drivers:",
-        map { ( my $d = $_ ) =~ s/^.*:://; "\t$d" }
-        Module::Packaged::Generator->all_drivers;
-    $logger->log_fatal( "$msg\n" );
-}
-$logger->log( "found a distribution driver: $driver" );
-
+$logger->log( "distribution driver: $driver" );
 
 # create the database
-( my $dist = $driver ) =~ s/^.*:://;
 my $file = $opt->file ? $opt->file : "cpan_$dist.db";
 my $dbh  = Module::Packaged::Generator->create_db($file);
 $dbh->{AutoCommit} = 0;

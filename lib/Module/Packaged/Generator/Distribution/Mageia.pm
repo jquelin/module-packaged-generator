@@ -13,13 +13,6 @@ extends 'Module::Packaged::Generator::Distribution::Mandriva';
 
 # -- public methods
 
-sub match {
-    my $mgarel = file( '/etc/mageia-release' );
-    return unless -f $mgarel;
-    my $content = $mgarel->slurp;
-    return ( $content =~ /mageia/i );
-}
-
 1;
 __END__
 

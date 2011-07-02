@@ -12,18 +12,6 @@ my $logger = Module::Packaged::Generator::Logger->instance;
 
 # -- public methods
 
-=method match
-
-    my $bool = $class->match;
-
-Return true if the class has detected that it can provides information
-on the current machine.
-
-=cut
-
-sub match { die "unimplemented" }
-
-
 =method list
 
     my @modules = $class->list;

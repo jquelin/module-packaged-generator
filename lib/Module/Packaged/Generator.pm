@@ -6,40 +6,47 @@ package Module::Packaged::Generator;
 # ABSTRACT: build list of modules packaged by a linux distribution
 
 use DBI;
-use List::Util qw{ first };
-use Module::Pluggable
-    require     => 1,
-    sub_name    => 'dists',
-    search_path => __PACKAGE__.'::Distribution';
+use Devel::Platform::Info::Linux;
+
+use Module::Packaged::Generator::Logger;
 
 
 # -- public methods
 
-=method all_drivers
+=method find_dist
 
-    my @drivers = Module::Packaged::Generator->all_drivers();
+    my $dist = $self->find_dist;
 
-Return a list of all available drivers supporting a distribution. The
-list is a list of module names (strings) such as
-L<Module::Packaged::Generator::Mandriva>.
+Return the Linux distribution name.
 
 =cut
 
-sub all_drivers { return $_[0]->dists; }
-
+sub find_dist {
+    return Devel::Platform::Info::Linux->new->get_info->{oslabel};
+}
 
 =method find_driver
 
     my $driver = Module::Packaged::Generator->find_driver;
 
-Return a driver that can be used on the current machine, or undef if no
-suitable driver was found.
+Return a driver that can be used on the current machine, or log a fatal
+error if no suitable driver was found.
 
 =cut
 
 sub find_driver {
     my $self = shift;
-    return first { $_->match } $self->dists;
+    my $logger = Module::Packaged::Generator::Logger->instance;
+
+    my $flavour = $self->find_dist;
+    my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
+
+    $logger->log_debug( "trying to use $driver" );
+    eval "use $driver";
+    $logger->log_fatal( $@ ) if $@ =~ /Compilation failed/;
+    $logger->log_fatal( "no driver found for this distribution" ) if $@;
+
+    return $driver;
 }
 
 

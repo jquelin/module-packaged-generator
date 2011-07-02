@@ -15,13 +15,6 @@ extends 'Module::Packaged::Generator::Distribution';
 
 # -- public methods
 
-sub match {
-    my $mdvrel = file( '/etc/mandriva-release' );
-    return unless -f $mdvrel;
-    my $content = $mdvrel->slurp;
-    return ( $content =~ /mandriva/i );
-}
-
 sub list {
     require URPM;
 
