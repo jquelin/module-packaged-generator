@@ -18,6 +18,7 @@ use lib catdir( $Bin, updir, 'lib' );
 
 
 use Module::Packaged::Generator;
+use Module::Packaged::Generator::Logger;
 
 
 # -- parse command-line options
@@ -35,13 +36,9 @@ print($usage->text), exit if $opt->help;
 
 # -- create logger
 
-my $logger = Log::Dispatchouli->new({
-    ident     => 'pkgcpan',
-    to_stdout => !$opt->quiet,
-    debug     => $opt->verbose,
-    log_pid   => 0,
-    quiet_fatal => [ qw{ stdout stderr } ],
-});
+my $logger = Module::Packaged::Generator::Logger->instance;
+$logger->set_debug( $opt->verbose );
+$logger->set_muted( $opt->quiet );
 
 
 # -- main program
