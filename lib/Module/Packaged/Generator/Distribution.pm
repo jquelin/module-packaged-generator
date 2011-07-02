@@ -5,6 +5,10 @@ use warnings;
 package Module::Packaged::Generator::Distribution;
 # ABSTRACT: base class for all distribution drivers
 
+use Module::Packaged::Generator::Logger;
+
+my $logger = Module::Packaged::Generator::Logger->instance;
+
 
 # -- public methods
 
@@ -28,7 +32,7 @@ Return the list of available Perl modules for this distribution.
 
 =cut
 
-sub list   { die "unimplemented" }
+sub list { $logger->log_fatal( "unimplemented" ); }
 
 1;
 __END__
@@ -37,5 +41,6 @@ __END__
 
 This module doesn't do anything useful, but defining methods that
 distribution drivers should implement. Those stub methods are just
-dying, since they should be overridden in the sub-classes.
+logging a fatal error, since they should be overridden in the
+sub-classes.
 
