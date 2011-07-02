@@ -8,6 +8,7 @@ package pkgcpan;
 # ABSTRACT: create db of available Perl modules
 
 use File::Spec::Functions qw{ catdir updir };
+use Getopt::Long::Descriptive;
 use Term::ProgressBar::Quiet;
 
 # for dev purposes
@@ -16,6 +17,16 @@ use lib catdir( $Bin, updir, 'lib' );
 
 
 use Module::Packaged::Generator;
+
+# -- parse command-line options
+
+my ($opt, $usage) = describe_options(
+    '%c %o',
+    [ 'file|f=s'  => "path to the database file"    ],
+    [],
+    [ 'help|h'    => "print usage message and exit" ],
+);
+print($usage->text), exit if $opt->help;
 
 
 # -- main program
@@ -35,7 +46,7 @@ print "found a distribution driver: $driver\n";
 
 # create the database
 ( my $dist = $driver ) =~ s/^.*:://;
-my $file = "cpan_$dist.db";
+my $file = $opt->file ? $opt->file : "cpan_$dist.db";
 my $dbh  = Module::Packaged::Generator->create_db($file);
 $dbh->{AutoCommit} = 0;
 $dbh->{RaiseError} = 1;
