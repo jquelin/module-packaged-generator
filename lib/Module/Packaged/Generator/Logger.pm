@@ -32,6 +32,36 @@ sub _build__logger {
 
 # --
 
+=method log
+
+=method log_debug
+
+=method log_fatal
+
+    $logger->log( $message );
+    $logger->log_debug( $message );
+    $logger->log_fatal( $message );
+
+Those methods allow to log a message, with various degrees of
+importance. Check L<Log::Dispatchouli> for more information.
+
+
+=method set_muted
+
+=method set_debug
+
+    $logger->set_debug( $bool );
+    $logger->set_muted( $bool );
+
+Sets whether the logger object will log debug messages, or will log
+regular messages at all. Check L<Log::Dispatchouli> for more
+information.
+
+=cut
+
+# methods provided by the _logger attribute
+
+
 =method progress_bar
 
     my $progress = $logger->progress_bar( @options );

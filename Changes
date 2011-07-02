@@ -2,6 +2,7 @@ Changelog for Module-Packaged-Generator
 
 {{$NEXT}}
  - possibility to specify path to database file
+ - better log handling
 
 1.111040  2011-04-14 12:54:36 Europe/Paris
  - new driver for mageia linux
