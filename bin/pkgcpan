@@ -9,8 +9,6 @@ package pkgcpan;
 
 use File::Spec::Functions qw{ catdir updir };
 use Getopt::Long::Descriptive;
-use Log::Dispatchouli;
-use Term::ProgressBar::Quiet;
 
 # for dev purposes
 use FindBin qw{ $Bin };
@@ -77,7 +75,7 @@ my $sth = $dbh->prepare("
         VALUES        (?,?,?,?);
 ");
 my $prefix = "inserting modules in db";
-my $progress = Term::ProgressBar::Quiet->new( {
+my $progress = $logger->progress_bar( {
     count     => scalar(@modules),
     bar_width => 50,
     remove    => 1,
