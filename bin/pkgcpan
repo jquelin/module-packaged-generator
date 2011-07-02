@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 
-package main;
+package pkgcpan;
 # ABSTRACT: create db of available Perl modules
 
 use File::Spec::Functions qw{ catdir updir };
@@ -90,7 +90,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    pkgcpan
+    $ pkgcpan
 
 
 =head1 DESCRIPTION
