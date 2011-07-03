@@ -16,6 +16,7 @@ with 'Module::Packaged::Generator::Role::Loggable';
 
 
 # -- public attributes
+{
 
 =attr file
 
@@ -24,48 +25,51 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
 
 =cut
 
-has file => ( ro, isa=>'Str', lazy_build );
-sub _build_file {
-    my $self = shift;
-    my $dist = $self->_dist;
-    return "cpan_$dist.db";
+    has file => ( ro, isa=>'Str', lazy_build );
+    sub _build_file {
+        my $self = shift;
+        my $dist = $self->_dist;
+        return "cpan_$dist.db";
+    }
 }
 
 
 # -- private attributes
+{
+    # the mpg::db object
+    has _db => ( ro, isa=>'Module::Packaged::Generator::DB', lazy_build );
+    sub _build__db {
+        my $self = shift;
+        return Module::Packaged::Generator::DB->new( file => $self->file );
+    }
 
-# the mpg::db object
-has _db => ( ro, isa=>'Module::Packaged::Generator::DB', lazy_build );
-sub _build__db {
-    my $self = shift;
-    return Module::Packaged::Generator::DB->new( file => $self->file );
+    # the linux distribution name
+    has _dist => ( ro, isa=>'Str', lazy_build );
+    sub _build__dist {
+        my $self = shift;
+        my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
+        $self->log( "linux distribution: $dist" );
+        return $dist;
+    }
+
+    # the driver object
+    has _driver => ( ro, isa=>'Module::Packaged::Generator::Distribution', lazy_build );
+    sub _build__driver {
+        my $self = shift;
+
+        my $flavour = $self->_dist;
+        my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
+        $self->log( "distribution driver: $driver" );
+
+        $self->log_debug( "trying to use distribution driver" );
+        eval "use $driver";
+        $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
+        $self->log_fatal( "no driver found for this distribution" ) if $@;
+
+        return $driver->new;
+    }
 }
 
-# the linux distribution name
-has _dist => ( ro, isa=>'Str', lazy_build );
-sub _build__dist {
-    my $self = shift;
-    my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
-    $self->log( "linux distribution: $dist" );
-    return $dist;
-}
-
-# the driver object
-has _driver => ( ro, isa=>'Module::Packaged::Generator::Distribution', lazy_build );
-sub _build__driver {
-    my $self = shift;
-
-    my $flavour = $self->_dist;
-    my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
-    $self->log( "distribution driver: $driver" );
-
-    $self->log_debug( "trying to use distribution driver" );
-    eval "use $driver";
-    $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
-    $self->log_fatal( "no driver found for this distribution" ) if $@;
-
-    return $driver->new;
-}
 
 # -- public methods
 
