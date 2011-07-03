@@ -9,7 +9,6 @@ use File::HomeDir::PathClass qw{ my_home };
 use Moose;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
-use Path::Class;
 
 
 # -- attributes

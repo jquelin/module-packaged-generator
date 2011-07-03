@@ -6,10 +6,8 @@ package Module::Packaged::Generator::Distribution::Mageia;
 # ABSTRACT: mageia driver to fetch available modules
 
 use Moose;
-use Path::Class;
 
 extends 'Module::Packaged::Generator::Distribution::URPMI';
-
 
 # -- public methods
 

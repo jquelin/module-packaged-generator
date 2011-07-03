@@ -9,6 +9,8 @@ use Moose;
 
 extends 'Module::Packaged::Generator::Distribution::URPMI';
 
+# -- public methods
+
 1;
 __END__
 
