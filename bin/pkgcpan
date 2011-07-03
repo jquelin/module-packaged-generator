@@ -9,14 +9,16 @@ package pkgcpan;
 
 use File::Spec::Functions qw{ catdir updir };
 use Getopt::Long::Descriptive;
+use Moose;
 
 # for dev purposes
 use FindBin qw{ $Bin };
 use lib catdir( $Bin, updir, 'lib' );
 
-
 use Module::Packaged::Generator;
 use Module::Packaged::Generator::Logger;
+
+with 'Module::Packaged::Generator::Role::Loggable';
 
 
 # -- parse command-line options
@@ -34,18 +36,18 @@ print($usage->text), exit if $opt->help;
 
 # -- create logger
 
-my $logger = Module::Packaged::Generator::Logger->instance;
-$logger->set_debug( $opt->verbose );
-$logger->set_muted( $opt->quiet );
+my $self = pkgcpan->new;
+$self->set_debug( $opt->verbose );
+$self->set_muted( $opt->quiet );
 
 
 # -- main program
 
 # try to find a suitable driver
 my $dist = Module::Packaged::Generator->find_dist;
-$logger->log( "linux distribution: $dist" );
+$self->log( "linux distribution: $dist" );
 my $driver = Module::Packaged::Generator->find_driver;
-$logger->log( "distribution driver: $driver" );
+$self->log( "distribution driver: $driver" );
 
 # create the database
 my $file = $opt->file ? $opt->file : "cpan_$dist.db";
@@ -55,9 +57,9 @@ $dbh->{RaiseError} = 1;
 
 
 # fetch the list of available perl modules
-$logger->log( "fetching list of available perl modules" );
-my @modules = $driver->list;
-$logger->log( "found " . scalar(@modules) . " perl modules" );
+$self->log( "fetching list of available perl modules" );
+my @modules = $driver->new->list;
+$self->log( "found " . scalar(@modules) . " perl modules" );
 
 
 # insert the modules in the database
@@ -67,7 +69,7 @@ my $sth = $dbh->prepare("
         VALUES        (?,?,?,?);
 ");
 my $prefix = "inserting modules in db";
-my $progress = $logger->progress_bar( {
+my $progress = $self->progress_bar( {
     count     => scalar(@modules),
     bar_width => 50,
     remove    => 1,
@@ -83,23 +85,23 @@ foreach my $i ( 0 .. $#modules ) {
 }
 $progress->update( scalar(@modules) );
 $sth->finish;
-$logger->log( "${prefix}: done" );
+$self->log( "${prefix}: done" );
 
 
 # create indexes in the db to make it faster
-$logger->log( "creating indexes:" );
-$logger->log( "  - modules " );
+$self->log( "creating indexes:" );
+$self->log( "  - modules " );
 $dbh->do("CREATE INDEX module__module  on module ( module  );");
-$logger->log( "  - dists " );
+$self->log( "  - dists " );
 $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-$logger->log( "  - packages " );
+$self->log( "  - packages " );
 $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
 
 
 # all's done, close the db
 $dbh->commit;
 $dbh->disconnect;
-$logger->log( "database created" );
+$self->log( "database created" );
 
 exit;
 __END__
