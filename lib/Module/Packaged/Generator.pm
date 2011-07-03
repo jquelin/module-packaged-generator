@@ -122,16 +122,7 @@ sub run {
     $progress->update( scalar(@modules) );
     $self->log( "${prefix}: done" );
 
-
-    # create indexes in the db to make it faster
-    $self->log( "creating indexes:" );
-    $self->log( "  - modules " );
-#    $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    $self->log( "  - dists " );
-#    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    $self->log( "  - packages " );
-#    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
-
+    $db->create_indices;
 
     # all's done, close the db
     $self->log( "database created" );

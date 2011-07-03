@@ -78,6 +78,28 @@ sub insert_module {
     $sth->execute($mod->name, $mod->version, $mod->dist, $mod->pkgname);
 }
 
+=method create_indices
+
+    $db->create_indices;
+
+Create indices on the various columns of the C<module> table to make it
+faster.
+
+=cut
+
+sub create_indices {
+    my $self = shift;
+    my $dbh = $self->_dbh;
+    $self->log( "creating indexes:" );
+    $self->log( "  - modules " );
+    $dbh->do("CREATE INDEX module__module  on module ( module  );");
+    $self->log( "  - dists " );
+    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
+    $self->log( "  - packages " );
+    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+}
+
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
