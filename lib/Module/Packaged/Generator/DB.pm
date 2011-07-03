@@ -24,43 +24,48 @@ has file => ( ro, isa=>'Str', required );
 
 
 # -- private attributes
+{
+    has _dbh => ( ro, isa=>"DBI::db", lazy_build );
+    sub _build__dbh {
+        my $self = shift;
+        my $file = $self->file;
 
-has _dbh => ( ro, isa=>"DBI::db", lazy_build );
-sub _build__dbh {
-    my $self = shift;
-    my $file = $self->file;
+        # create sqlite db
+        $self->log( "creating sqlite database: $file" );
+        unlink($file) if -f $file;
+        my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
 
-    # create sqlite db
-    $self->log( "creating sqlite database: $file" );
-    unlink($file) if -f $file;
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
+        # create the module table
+        $self->log_debug( "creating module table" );
+        $dbh->do("
+            CREATE TABLE module (
+                module      TEXT NOT NULL,
+                version     TEXT,
+                dist        TEXT,
+                pkgname     TEXT NOT NULL
+            );
+        ");
 
-    # create the module table
-    $self->log_debug( "creating module table" );
-    $dbh->do("
-        CREATE TABLE module (
-            module      TEXT NOT NULL,
-            version     TEXT,
-            dist        TEXT,
-            pkgname     TEXT NOT NULL
-        );
-    ");
-
-    # set database options
-    $dbh->{AutoCommit} = 0;
-    $dbh->{RaiseError} = 1;
-    return $dbh;
+        # set database options
+        $dbh->{AutoCommit} = 0;
+        $dbh->{RaiseError} = 1;
+        return $dbh;
+    }
 }
 
-sub BUILD {
-    my $self = shift;
-    $self->_dbh;    # force creation (prevent build too lazy)
-}
-sub DEMOLISH {
-    my $self = shift;
-    my $dbh = $self->_dbh;
-    $dbh->commit;
-    $dbh->disconnect;
+
+# -- initialization
+{
+    sub BUILD {
+        my $self = shift;
+        $self->_dbh;    # force creation (prevent build too lazy)
+    }
+    sub DEMOLISH {
+        my $self = shift;
+        my $dbh = $self->_dbh;
+        $dbh->commit;
+        $dbh->disconnect;
+    }
 }
 
 # -- public methods
