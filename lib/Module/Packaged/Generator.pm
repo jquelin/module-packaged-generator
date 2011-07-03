@@ -1,4 +1,4 @@
-use 5.008;
+use 5.012;
 use strict;
 use warnings;
 
@@ -9,6 +9,8 @@ use DBI;
 use Devel::Platform::Info::Linux;
 use Moose;
 use MooseX::Has::Sugar;
+
+use Module::Packaged::Generator::DB;
 
 with 'Module::Packaged::Generator::Role::Loggable';
 
@@ -27,6 +29,15 @@ sub _build_file {
     my $self = shift;
     my $dist = $self->find_dist;
     return "cpan_$dist.db";
+}
+
+
+# -- private attributes
+
+has _db => ( ro, isa=>'Module::Packaged::Generator::DB', lazy_build );
+sub _build__db {
+    my $self = shift;
+    return Module::Packaged::Generator::DB->new( file => $self->file );
 }
 
 
@@ -68,31 +79,6 @@ sub find_driver {
 }
 
 
-=method create_db
-
-    my $dbh = Module::Packaged::Generator->create_db($file);
-
-Creates a sqlite database with the correct schema. Remove the previous
-C<$file> if it exists. Return the handler on the opened database.
-
-=cut
-
-sub create_db {
-    my ($self, $file) = @_;
-
-    unlink($file) if -f $file;
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
-    $dbh->do("
-        CREATE TABLE module (
-            module      TEXT NOT NULL,
-            version     TEXT,
-            dist        TEXT,
-            pkgname     TEXT NOT NULL
-        );
-    ");
-    return $dbh;
-}
-
 =method run
 
     $generator->run;
@@ -111,25 +97,13 @@ sub run {
     my $driver = $self->find_driver;
     $self->log( "distribution driver: $driver" );
 
-    # create the database
-    my $file = $self->file;
-    my $dbh  = Module::Packaged::Generator->create_db($file);
-    $dbh->{AutoCommit} = 0;
-    $dbh->{RaiseError} = 1;
-
-
     # fetch the list of available perl modules
     $self->log( "fetching list of available perl modules" );
     my @modules = $driver->new->list;
     $self->log( "found " . scalar(@modules) . " perl modules" );
 
-
     # insert the modules in the database
-    my $sth = $dbh->prepare("
-        INSERT
-            INTO   module (module, version, dist, pkgname)
-            VALUES        (?,?,?,?);
-    ");
+    my $db = $self->_db;
     my $prefix = "inserting modules in db";
     my $progress = $self->progress_bar( {
         count     => scalar(@modules),
@@ -141,28 +115,25 @@ sub run {
     my $next_update = 0;
     foreach my $i ( 0 .. $#modules ) {
         my $m = $modules[$i];
-        $sth->execute($m->name, $m->version, $m->dist, $m->pkgname);
+        $db->insert_module($m);
         $next_update = $progress->update($_)
             if $i >= $next_update;
     }
     $progress->update( scalar(@modules) );
-    $sth->finish;
     $self->log( "${prefix}: done" );
 
 
     # create indexes in the db to make it faster
     $self->log( "creating indexes:" );
     $self->log( "  - modules " );
-    $dbh->do("CREATE INDEX module__module  on module ( module  );");
+#    $dbh->do("CREATE INDEX module__module  on module ( module  );");
     $self->log( "  - dists " );
-    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
+#    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
     $self->log( "  - packages " );
-    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+#    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
 
 
     # all's done, close the db
-    $dbh->commit;
-    $dbh->disconnect;
     $self->log( "database created" );
 }
 
