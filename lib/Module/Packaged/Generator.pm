@@ -7,8 +7,27 @@ package Module::Packaged::Generator;
 
 use DBI;
 use Devel::Platform::Info::Linux;
+use Moose;
+use MooseX::Has::Sugar;
 
-use Module::Packaged::Generator::Logger;
+with 'Module::Packaged::Generator::Role::Loggable';
+
+
+# -- public attributes
+
+=attr file
+
+The path to the database file to be created (a string). Defaults to
+C<cpan_$dist.db>, where C<$dist> is the distribution name.
+
+=cut
+
+has file => ( ro, isa=>'Str', lazy_build );
+sub _build_file {
+    my $self = shift;
+    my $dist = $self->find_dist;
+    return "cpan_$dist.db";
+}
 
 
 # -- public methods
@@ -36,15 +55,14 @@ error if no suitable driver was found.
 
 sub find_driver {
     my $self = shift;
-    my $logger = Module::Packaged::Generator::Logger->instance;
 
     my $flavour = $self->find_dist;
     my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
 
-    $logger->log_debug( "trying to use $driver" );
+    $self->log_debug( "trying to use $driver" );
     eval "use $driver";
-    $logger->log_fatal( $@ ) if $@ =~ /Compilation failed/;
-    $logger->log_fatal( "no driver found for this distribution" ) if $@;
+    $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
+    $self->log_fatal( "no driver found for this distribution" ) if $@;
 
     return $driver;
 }
@@ -73,6 +91,79 @@ sub create_db {
         );
     ");
     return $dbh;
+}
+
+=method run
+
+    $generator->run;
+
+Create the database and populate it according to the driver's list of
+modules.
+
+=cut
+
+sub run {
+    my $self = shift;
+
+    # try to find a suitable driver
+    my $dist = Module::Packaged::Generator->find_dist;
+    $self->log( "linux distribution: $dist" );
+    my $driver = $self->find_driver;
+    $self->log( "distribution driver: $driver" );
+
+    # create the database
+    my $file = $self->file;
+    my $dbh  = Module::Packaged::Generator->create_db($file);
+    $dbh->{AutoCommit} = 0;
+    $dbh->{RaiseError} = 1;
+
+
+    # fetch the list of available perl modules
+    $self->log( "fetching list of available perl modules" );
+    my @modules = $driver->new->list;
+    $self->log( "found " . scalar(@modules) . " perl modules" );
+
+
+    # insert the modules in the database
+    my $sth = $dbh->prepare("
+        INSERT
+            INTO   module (module, version, dist, pkgname)
+            VALUES        (?,?,?,?);
+    ");
+    my $prefix = "inserting modules in db";
+    my $progress = $self->progress_bar( {
+        count     => scalar(@modules),
+        bar_width => 50,
+        remove    => 1,
+        name      => $prefix,
+    } );
+    $progress->minor(0);  # we're so fast now that we don't need minor scale
+    my $next_update = 0;
+    foreach my $i ( 0 .. $#modules ) {
+        my $m = $modules[$i];
+        $sth->execute($m->name, $m->version, $m->dist, $m->pkgname);
+        $next_update = $progress->update($_)
+            if $i >= $next_update;
+    }
+    $progress->update( scalar(@modules) );
+    $sth->finish;
+    $self->log( "${prefix}: done" );
+
+
+    # create indexes in the db to make it faster
+    $self->log( "creating indexes:" );
+    $self->log( "  - modules " );
+    $dbh->do("CREATE INDEX module__module  on module ( module  );");
+    $self->log( "  - dists " );
+    $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
+    $self->log( "  - packages " );
+    $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
+
+
+    # all's done, close the db
+    $dbh->commit;
+    $dbh->disconnect;
+    $self->log( "database created" );
 }
 
 
