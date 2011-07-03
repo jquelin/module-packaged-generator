@@ -6,9 +6,8 @@ package Module::Packaged::Generator::Distribution;
 # ABSTRACT: base class for all distribution drivers
 
 use Moose;
-use Module::Packaged::Generator::Logger;
 
-my $logger = Module::Packaged::Generator::Logger->instance;
+with 'Module::Packaged::Generator::Role::Loggable';
 
 
 # -- public methods
@@ -21,7 +20,7 @@ Return the list of available Perl modules for this distribution.
 
 =cut
 
-sub list { $logger->log_fatal( "unimplemented" ); }
+sub list { my $self = shift; $self->log_fatal( "unimplemented" ); }
 
 1;
 __END__
