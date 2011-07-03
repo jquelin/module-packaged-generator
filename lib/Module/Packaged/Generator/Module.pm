@@ -1,4 +1,4 @@
-use 5.008;
+use 5.012;
 use strict;
 use warnings;
 
@@ -7,8 +7,30 @@ package Module::Packaged::Generator::Module;
 
 use File::HomeDir::PathClass qw{ my_home };
 use Moose;
+use MooseX::ClassAttribute;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
+
+with 'Module::Packaged::Generator::Role::Loggable';
+
+
+# -- class attributes
+
+{
+    # parse::cpan::packages::fast object
+    class_has _cpan => ( ro, isa=>'Parse::CPAN::Packages::Fast', builder=>'_build__cpan' );
+    sub _build__cpan {
+        my $self = shift->new;
+
+        # try to locate cpanplus index
+        my $pkgfile = my_home()->file( '.cpanplus', '02packages.details.txt.gz' );
+        $self->log_fatal( "couldn't find a cpanplus index in $pkgfile" )
+            unless -f $pkgfile;
+
+        $self->log( "parsing $pkgfile" );
+        return Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
+    }
+}
 
 
 # -- attributes
@@ -40,19 +62,10 @@ has version => ( ro, isa=>'Maybe[Str]'             );
 has dist    => ( ro, isa=>'Maybe[Str]', lazy_build );
 has pkgname => ( ro, isa=>'Str',        required   );
 
-my $CPAN;
-{
-    # try to locate cpanplus index
-    my $pkgfile = my_home()->file( '.cpanplus', '02packages.details.txt.gz' );
-    die "couldn't find a cpanplus index in $pkgfile\n"
-        unless -f $pkgfile;
-    $CPAN = Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
-}
-
 sub _build_dist {
     my $self = shift;
     my $pkg;
-    eval { $pkg = $CPAN->package( $self->name ); };
+    eval { $pkg = $self->_cpan->package( $self->name ); };
     return unless $pkg;
     return $pkg->distribution->dist;
 }
