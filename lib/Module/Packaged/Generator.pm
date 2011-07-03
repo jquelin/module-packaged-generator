@@ -27,56 +27,47 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
 has file => ( ro, isa=>'Str', lazy_build );
 sub _build_file {
     my $self = shift;
-    my $dist = $self->find_dist;
+    my $dist = $self->_dist;
     return "cpan_$dist.db";
 }
 
 
 # -- private attributes
 
+# the mpg::db object
 has _db => ( ro, isa=>'Module::Packaged::Generator::DB', lazy_build );
 sub _build__db {
     my $self = shift;
     return Module::Packaged::Generator::DB->new( file => $self->file );
 }
 
-
-# -- public methods
-
-=method find_dist
-
-    my $dist = $self->find_dist;
-
-Return the Linux distribution name.
-
-=cut
-
-sub find_dist {
-    return Devel::Platform::Info::Linux->new->get_info->{oslabel};
+# the linux distribution name
+has _dist => ( ro, isa=>'Str', lazy_build );
+sub _build__dist {
+    my $self = shift;
+    my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
+    $self->log( "linux distribution: $dist" );
+    return $dist;
 }
 
-=method find_driver
-
-    my $driver = Module::Packaged::Generator->find_driver;
-
-Return a driver that can be used on the current machine, or log a fatal
-error if no suitable driver was found.
-
-=cut
-
-sub find_driver {
+# the driver object
+has _driver => ( ro, isa=>'Module::Packaged::Generator::Distribution', lazy_build );
+sub _build__driver {
     my $self = shift;
 
-    my $flavour = $self->find_dist;
+    my $flavour = $self->_dist;
     my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
+    $self->log( "distribution driver: $driver" );
 
-    $self->log_debug( "trying to use $driver" );
+    $self->log_debug( "trying to use distribution driver" );
     eval "use $driver";
     $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
     $self->log_fatal( "no driver found for this distribution" ) if $@;
 
-    return $driver;
+    return $driver->new;
 }
+
+# -- public methods
 
 
 =method run
@@ -91,15 +82,9 @@ modules.
 sub run {
     my $self = shift;
 
-    # try to find a suitable driver
-    my $dist = Module::Packaged::Generator->find_dist;
-    $self->log( "linux distribution: $dist" );
-    my $driver = $self->find_driver;
-    $self->log( "distribution driver: $driver" );
-
     # fetch the list of available perl modules
     $self->log( "fetching list of available perl modules" );
-    my @modules = $driver->new->list;
+    my @modules = $self->_driver->list;
     $self->log( "found " . scalar(@modules) . " perl modules" );
 
     # insert the modules in the database
