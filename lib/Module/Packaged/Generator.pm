@@ -59,7 +59,7 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
 
         my $flavour = $self->_dist;
         my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
-        $self->log( "distribution driver: $driver" );
+        $self->log_debug( "distribution driver: $driver" );
 
         $self->log_debug( "trying to use distribution driver" );
         eval "use $driver";
@@ -112,9 +112,7 @@ sub run {
     $self->log( "${prefix}: done" );
 
     $db->create_indices;
-
-    # all's done, close the db
-    $self->log( "database created" );
+    $self->log( "database is ready" );
 }
 
 

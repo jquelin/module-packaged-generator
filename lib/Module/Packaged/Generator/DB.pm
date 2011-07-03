@@ -31,10 +31,12 @@ sub _build__dbh {
     my $file = $self->file;
 
     # create sqlite db
+    $self->log( "creating sqlite database: $file" );
     unlink($file) if -f $file;
     my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
 
     # create the module table
+    $self->log_debug( "creating module table" );
     $dbh->do("
         CREATE TABLE module (
             module      TEXT NOT NULL,
@@ -50,6 +52,10 @@ sub _build__dbh {
     return $dbh;
 }
 
+sub BUILD {
+    my $self = shift;
+    $self->_dbh;    # force creation (prevent build too lazy)
+}
 sub DEMOLISH {
     my $self = shift;
     my $dbh = $self->_dbh;
@@ -90,12 +96,12 @@ faster.
 sub create_indices {
     my $self = shift;
     my $dbh = $self->_dbh;
-    $self->log( "creating indexes:" );
-    $self->log( "  - modules " );
+    $self->log( "creating indexes" );
+    $self->log_debug( "  - modules " );
     $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    $self->log( "  - dists " );
+    $self->log_debug( "  - dists " );
     $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    $self->log( "  - packages " );
+    $self->log_debug( "  - packages " );
     $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
 }
 
@@ -107,7 +113,7 @@ __PACKAGE__->meta->make_immutable;
 __END__
 
 =for Pod::Coverage
-    DEMOLISH
+    BUILD DEMOLISH
 
 =head1 DESCRIPTION
 
