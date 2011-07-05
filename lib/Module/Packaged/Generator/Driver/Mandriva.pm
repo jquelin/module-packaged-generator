@@ -9,7 +9,16 @@ use Moose;
 
 extends 'Module::Packaged::Generator::Driver::URPMI';
 
-# -- public methods
+
+# -- initialization
+
+sub _build__medias {
+    my $self = shift;
+    my $root = 'http://distrib-coffee.ipsl.jussieu.fr/pub/linux/MandrivaLinux/devel/cooker/x86_64/media';
+    my @medias = ( qw{ main contrib }, "non-free" );
+    my $suffix = 'release/media_info/synthesis.hdlist.cz';
+    return { map { $_ => "$root/$_/$suffix" } @medias };
+}
 
 1;
 __END__
