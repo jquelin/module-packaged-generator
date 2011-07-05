@@ -9,7 +9,16 @@ use Moose;
 
 extends 'Module::Packaged::Generator::Distribution::URPMI';
 
-# -- public methods
+
+# -- initialization
+
+sub _build__medias {
+    my $self = shift;
+    my $root = 'http://distrib-coffee.ipsl.jussieu.fr/pub/linux/Mageia/distrib/cauldron/x86_64/media';
+    my @medias = qw{ core nonfree tainted };
+    my $suffix = 'release/media_info/synthesis.hdlist.cz';
+    return { map { $_ => "$root/$_/$suffix" } @medias };
+}
 
 1;
 __END__

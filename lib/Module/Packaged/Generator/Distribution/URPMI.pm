@@ -6,20 +6,37 @@ package Module::Packaged::Generator::Distribution::URPMI;
 # ABSTRACT: urpmi-based driver to fetch available modules
 
 use Moose;
-use Path::Class;
+use MooseX::Has::Sugar;
 
 use Module::Packaged::Generator::Module;
 
 extends 'Module::Packaged::Generator::Distribution';
+with    'Module::Packaged::Generator::Role::Loggable';
+
+
+
+# -- private attributes
+
+has _medias => (
+    ro, lazy_build,
+    isa     => 'HashRef[Str]',
+    traits  => ['Hash'],
+    handles => {
+        medias        => 'keys',
+        get_media_url => 'get',
+    },
+);
 
 
 # -- public methods
 
 sub list {
+    my $self = shift;
+
     require URPM;
 
     my $urpm = URPM->new;
-    $urpm->parse_synthesis($_) for glob "/var/lib/urpmi/*/synthesis.hdlist.cz";
+    $urpm->parse_synthesis($_) for $self->_get_synthesis;
 
     my @modules;
     my %seen;
@@ -39,6 +56,30 @@ sub list {
         }
     } );
     return @modules;
+}
+
+
+# -- private methods
+
+#
+# my @files = $urpmi->_get_synthesis;
+#
+# download the synthesis files from a mirror and store them locally,
+# return the path to the local files. this allows to use latest &
+# greatest data instead of (stalled?) local data.
+#
+sub _get_synthesis {
+    my $self = shift;
+
+    my @files;
+    (my $dist = ref($self)) =~ s/.*:://;
+    foreach my $media ( $self->medias ) {
+        my $url  = $self->get_media_url($media);
+        my $base = "synthesis.hdlist.$dist.$media.cz";
+        push @files, $self->fetch_url( $url, $base );
+    }
+
+    return @files;
 }
 
 1;
