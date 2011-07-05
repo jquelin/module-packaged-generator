@@ -5,13 +5,13 @@ use warnings;
 package Module::Packaged::Generator::Module;
 # ABSTRACT: a class representing a perl module
 
-use File::HomeDir::PathClass qw{ my_home };
 use Moose;
 use MooseX::ClassAttribute;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
 
 with 'Module::Packaged::Generator::Role::Logging';
+with 'Module::Packaged::Generator::Role::UrlFetching';
 
 
 # -- class attributes
@@ -22,10 +22,10 @@ with 'Module::Packaged::Generator::Role::Logging';
     sub _build__cpan {
         my $self = shift->new;
 
-        # try to locate cpanplus index
-        my $pkgfile = my_home()->file( '.cpanplus', '02packages.details.txt.gz' );
-        $self->log_fatal( "couldn't find a cpanplus index in $pkgfile" )
-            unless -f $pkgfile;
+        $self->log( "fetching fresh cpan index" );
+        my $file = '02packages.details.txt.gz';
+        my $url  = "http://www.perl.org/CPAN/modules/$file";
+        my $pkgfile = $self->fetch_url( $url, $file );
 
         $self->log( "parsing $pkgfile" );
         return Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
