@@ -5,10 +5,7 @@ use warnings;
 package Module::Packaged::Generator::Driver;
 # ABSTRACT: base class for all drivers
 
-use LWP::Simple;
 use Moose;
-
-use Module::Packaged::Generator::Utils qw{ $DATADIR };
 
 with 'Module::Packaged::Generator::Role::Loggable';
 
@@ -27,28 +24,6 @@ be overridden in child classes.
 
 sub list { my $self = shift; $self->log_fatal( "unimplemented" ); }
 
-
-=method fetch_url
-
-    my $file = $driver->fetch_url( $url, $basename );
-
-Try to fetch C<$url>, and store it as C<$basename> in a private data
-directory (cf L<Module::Packaged::Generator::Utils>). Return the full
-path if successful (a L<Path::Class> object), throws an error if
-download ended up as an error.
-
-=cut
-
-sub fetch_url {
-    my ($self, $url, $basename) = @_;
-
-    my $file = $DATADIR->file( $basename );
-    $self->log_debug( "downloading $url" );
-    my $rc = mirror($url, $file);
-    return $file if $rc == 304; # file is up to date
-    return $file if is_success($rc);
-    $self->log_fatal( status_message($rc) . "$rc $url " );
-}
 
 1;
 __END__
