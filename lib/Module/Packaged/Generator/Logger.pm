@@ -62,6 +62,20 @@ information.
 # methods provided by the _logger attribute
 
 
+=method log_step
+
+    $logger->log_step( $msg );
+
+Record C<$msg> as a new step in the application.
+
+=cut
+
+sub log_step {
+    my ($self, $msg) = @_;
+    $self->log( "\n** $msg" );
+}
+
+
 =method progress_bar
 
     my $progress = $logger->progress_bar( @options );

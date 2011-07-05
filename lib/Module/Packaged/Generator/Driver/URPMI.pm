@@ -32,12 +32,15 @@ has _medias => (
 
 sub list {
     my $self = shift;
+    my @synthesises = $self->_get_synthesis;
 
+    $self->log_step( "fetching list of available perl modules" );
     require URPM;
-
     my $urpm = URPM->new;
-    $urpm->parse_synthesis($_) for $self->_get_synthesis;
+    $self->log( "parsing synthesis files" );
+    $urpm->parse_synthesis($_) for @synthesises;
 
+    $self->log( "extracting perl modules information" );
     my @modules;
     my %seen;
     $urpm->traverse( sub {
@@ -71,6 +74,7 @@ sub list {
 sub _get_synthesis {
     my $self = shift;
 
+    $self->log_step( "downloading synthesis information" );
     my @files;
     (my $driver = ref($self)) =~ s/.*:://;
     foreach my $media ( $self->medias ) {

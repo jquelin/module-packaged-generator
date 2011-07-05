@@ -17,7 +17,7 @@ has _logger => (
     isa     => 'Module::Packaged::Generator::Logger',
     default => sub { Module::Packaged::Generator::Logger->instance },
     handles => [ qw{
-        log log_fatal log_debug
+        log_step log log_fatal log_debug
         set_debug set_muted progress_bar
     } ],
 );
@@ -38,6 +38,8 @@ Those methods are imported from L<Module::Packaged::Generator::Logger> -
 refer to this module for more information.
 
 =cut
+
+# provided by mpg:logger
 
 no Moose::Role;
 

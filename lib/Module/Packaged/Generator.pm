@@ -28,7 +28,7 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
     has file => ( ro, isa=>'Str', lazy_build );
     sub _build_file {
         my $self = shift;
-        my $dist = $self->_dist;
+        my $dist = $self->drivername;
         return "cpan_$dist.db";
     }
 }
@@ -44,11 +44,10 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
     }
 
     # the linux distribution name
-    has _dist => ( ro, isa=>'Str', lazy_build );
-    sub _build__dist {
+    has drivername => ( ro, isa=>'Str', lazy_build );
+    sub _build_drivername {
         my $self = shift;
         my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
-        $self->log( "linux distribution: $dist" );
         return $dist;
     }
 
@@ -57,11 +56,10 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
     sub _build__driver {
         my $self = shift;
 
-        my $flavour = $self->_dist;
+        my $flavour = $self->drivername;
         my $driver  = "Module::Packaged::Generator::Driver::$flavour";
-        $self->log_debug( "distribution driver: $driver" );
 
-        $self->log_debug( "trying to use distribution driver" );
+        $self->log_debug( "trying to use driver $driver" );
         eval "use $driver";
         $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
         $self->log_fatal( "no driver found for this distribution" ) if $@;
@@ -86,14 +84,19 @@ modules.
 sub run {
     my $self = shift;
 
+    # initialize stuff
+    $self->log_step( "initialization" );
+    $self->log_debug( "driver name: " . $self->drivername );
+    $self->_driver; # force attribute creation
+
     # fetch the list of available perl modules
-    $self->log( "fetching list of available perl modules" );
     my @modules = $self->_driver->list;
     $self->log( "found " . scalar(@modules) . " perl modules" );
 
     # insert the modules in the database
     my $db = $self->_db;
     $db->create;
+    $self->log_step( "populating database" );
     my $prefix = "inserting modules in db";
     my $progress = $self->progress_bar( {
         count     => scalar(@modules),
@@ -113,7 +116,7 @@ sub run {
     $self->log( "${prefix}: done" );
 
     $db->create_indices;
-    $self->log( "database is ready" );
+    $self->log_step( "database is ready" );
 }
 
 

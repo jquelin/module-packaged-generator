@@ -55,7 +55,8 @@ sub create {
     my $file = $self->file;
 
     # create sqlite db
-    $self->log( "creating sqlite database: $file" );
+    $self->log_step( "creating sqlite database" );
+    $self->log( "db location: $file" );
     unlink($file) if -f $file;
     my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
     $self->_set_dbh( $dbh );
@@ -108,12 +109,12 @@ faster.
 sub create_indices {
     my $self = shift;
     my $dbh = $self->_dbh;
-    $self->log( "creating indexes" );
-    $self->log_debug( "  - modules " );
+    $self->log_step( "creating indexes" );
+    $self->log_debug( "index on column modules" );
     $dbh->do("CREATE INDEX module__module  on module ( module  );");
-    $self->log_debug( "  - dists " );
+    $self->log_debug( "index on column dists" );
     $dbh->do("CREATE INDEX module__dist    on module ( dist    );");
-    $self->log_debug( "  - packages " );
+    $self->log_debug( "index on column packages" );
     $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
 }
 
