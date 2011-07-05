@@ -2,7 +2,7 @@ use 5.010;
 use strict;
 use warnings;
 
-package Module::Packaged::Generator::Distribution::URPMI;
+package Module::Packaged::Generator::Driver::URPMI;
 # ABSTRACT: urpmi-based driver to fetch available modules
 
 use Moose;
@@ -10,7 +10,7 @@ use MooseX::Has::Sugar;
 
 use Module::Packaged::Generator::Module;
 
-extends 'Module::Packaged::Generator::Distribution';
+extends 'Module::Packaged::Generator::Driver';
 with    'Module::Packaged::Generator::Role::Loggable';
 
 
@@ -72,10 +72,10 @@ sub _get_synthesis {
     my $self = shift;
 
     my @files;
-    (my $dist = ref($self)) =~ s/.*:://;
+    (my $driver = ref($self)) =~ s/.*:://;
     foreach my $media ( $self->medias ) {
         my $url  = $self->get_media_url($media);
-        my $base = "synthesis.hdlist.$dist.$media.cz";
+        my $base = "synthesis.hdlist.$driver.$media.cz";
         push @files, $self->fetch_url( $url, $base );
     }
 
@@ -87,6 +87,6 @@ __END__
 
 =head1 DESCRIPTION
 
-This module is the L<Module::Packaged::Generator::Distribution> driver
+This module is the L<Module::Packaged::Generator::Driver> driver
 for urpmi-based distributions (such as Mageia and Mandriva).
 

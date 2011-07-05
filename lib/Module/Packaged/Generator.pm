@@ -53,12 +53,12 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
     }
 
     # the driver object
-    has _driver => ( ro, isa=>'Module::Packaged::Generator::Distribution', lazy_build );
+    has _driver => ( ro, isa=>'Module::Packaged::Generator::Driver', lazy_build );
     sub _build__driver {
         my $self = shift;
 
         my $flavour = $self->_dist;
-        my $driver  = "Module::Packaged::Generator::Distribution::$flavour";
+        my $driver  = "Module::Packaged::Generator::Driver::$flavour";
         $self->log_debug( "distribution driver: $driver" );
 
         $self->log_debug( "trying to use distribution driver" );

@@ -2,12 +2,12 @@ use 5.008;
 use strict;
 use warnings;
 
-package Module::Packaged::Generator::Distribution::Mageia;
+package Module::Packaged::Generator::Driver::Mageia;
 # ABSTRACT: mageia driver to fetch available modules
 
 use Moose;
 
-extends 'Module::Packaged::Generator::Distribution::URPMI';
+extends 'Module::Packaged::Generator::Driver::URPMI';
 
 
 # -- initialization
@@ -25,5 +25,4 @@ __END__
 
 =head1 DESCRIPTION
 
-This module is the L<Module::Packaged::Generator::Distribution> driver
-for Mageia.
+This module is the L<Module::Packaged::Generator::Driver> for Mageia.

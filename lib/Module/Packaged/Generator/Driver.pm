@@ -2,8 +2,8 @@ use 5.008;
 use strict;
 use warnings;
 
-package Module::Packaged::Generator::Distribution;
-# ABSTRACT: base class for all distribution drivers
+package Module::Packaged::Generator::Driver;
+# ABSTRACT: base class for all drivers
 
 use LWP::Simple;
 use Moose;
@@ -17,9 +17,11 @@ with 'Module::Packaged::Generator::Role::Loggable';
 
 =method list
 
-    my @modules = $class->list;
+    my @modules = $driver->list;
 
-Return the list of available Perl modules for this distribution.
+Return the list of available Perl modules found by this distribution
+driver. The method in this class just logs a fatal error, and needs to
+be overridden in child classes.
 
 =cut
 
@@ -28,7 +30,7 @@ sub list { my $self = shift; $self->log_fatal( "unimplemented" ); }
 
 =method fetch_url
 
-    my $file = $dist->fetch_url( $url, $basename );
+    my $file = $driver->fetch_url( $url, $basename );
 
 Try to fetch C<$url>, and store it as C<$basename> in a private data
 directory (cf L<Module::Packaged::Generator::Utils>). Return the full
@@ -53,8 +55,6 @@ __END__
 
 =head1 DESCRIPTION
 
-This module doesn't do anything useful, but defining methods that
-distribution drivers should implement. Those stub methods are just
-logging a fatal error, since they should be overridden in the
+This module is the base class for all distribution drivers. It provides
+some helper methods, and stubs that needs to be overriden in
 sub-classes.
-
