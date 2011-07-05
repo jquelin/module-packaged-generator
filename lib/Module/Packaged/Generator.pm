@@ -93,6 +93,7 @@ sub run {
 
     # insert the modules in the database
     my $db = $self->_db;
+    $db->create;
     my $prefix = "inserting modules in db";
     my $progress = $self->progress_bar( {
         count     => scalar(@modules),

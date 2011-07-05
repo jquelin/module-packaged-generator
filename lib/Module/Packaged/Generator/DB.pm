@@ -8,6 +8,7 @@ package Module::Packaged::Generator::DB;
 use DBI;
 use Moose;
 use MooseX::Has::Sugar;
+use MooseX::SemiAffordanceAccessor;
 
 with 'Module::Packaged::Generator::Role::Loggable';
 
@@ -24,42 +25,13 @@ has file => ( ro, isa=>'Str', required );
 
 
 # -- private attributes
-{
-    has _dbh => ( ro, isa=>"DBI::db", lazy_build );
-    sub _build__dbh {
-        my $self = shift;
-        my $file = $self->file;
 
-        # create sqlite db
-        $self->log( "creating sqlite database: $file" );
-        unlink($file) if -f $file;
-        my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
-
-        # create the module table
-        $self->log_debug( "creating module table" );
-        $dbh->do("
-            CREATE TABLE module (
-                module      TEXT NOT NULL,
-                version     TEXT,
-                dist        TEXT,
-                pkgname     TEXT NOT NULL
-            );
-        ");
-
-        # set database options
-        $dbh->{AutoCommit} = 0;
-        $dbh->{RaiseError} = 1;
-        return $dbh;
-    }
-}
+# the dbi handler
+has _dbh => ( rw, isa=>"DBI::db" );
 
 
 # -- initialization
 {
-    sub BUILD {
-        my $self = shift;
-        $self->_dbh;    # force creation (prevent build too lazy)
-    }
     sub DEMOLISH {
         my $self = shift;
         my $dbh = $self->_dbh;
@@ -69,6 +41,41 @@ has file => ( ro, isa=>'Str', required );
 }
 
 # -- public methods
+
+=method create
+
+    $db->create;
+
+Force database creation.
+
+=cut
+
+sub create {
+    my $self = shift;
+    my $file = $self->file;
+
+    # create sqlite db
+    $self->log( "creating sqlite database: $file" );
+    unlink($file) if -f $file;
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
+    $self->_set_dbh( $dbh );
+
+    # create the module table
+    $self->log_debug( "creating module table" );
+    $dbh->do("
+        CREATE TABLE module (
+            module      TEXT NOT NULL,
+            version     TEXT,
+            dist        TEXT,
+            pkgname     TEXT NOT NULL
+        );
+    ");
+
+    # set database options
+    $dbh->{AutoCommit} = 0;
+    $dbh->{RaiseError} = 1;
+}
+
 
 =method insert_module
 
@@ -118,7 +125,7 @@ __PACKAGE__->meta->make_immutable;
 __END__
 
 =for Pod::Coverage
-    BUILD DEMOLISH
+    DEMOLISH
 
 =head1 DESCRIPTION
 
