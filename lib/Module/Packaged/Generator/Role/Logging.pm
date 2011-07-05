@@ -2,7 +2,7 @@ use 5.012;
 use strict;
 use warnings;
 
-package Module::Packaged::Generator::Role::Loggable;
+package Module::Packaged::Generator::Role::Logging;
 # ABSTRACT: role to provide easy logging
 
 use Moose::Role;

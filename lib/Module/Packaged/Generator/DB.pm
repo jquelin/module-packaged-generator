@@ -10,7 +10,7 @@ use Moose;
 use MooseX::Has::Sugar;
 use MooseX::SemiAffordanceAccessor;
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- public attributes

@@ -20,7 +20,7 @@ use lib catdir( $Bin, updir, 'lib' );
 
 use Module::Packaged::Generator;
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- main program

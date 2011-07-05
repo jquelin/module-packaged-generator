@@ -12,7 +12,7 @@ use MooseX::Has::Sugar;
 
 use Module::Packaged::Generator::DB;
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- public attributes

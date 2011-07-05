@@ -11,7 +11,7 @@ use MooseX::Has::Sugar;
 use Module::Packaged::Generator::Module;
 
 extends 'Module::Packaged::Generator::Driver';
-with    'Module::Packaged::Generator::Role::Loggable';
+with    'Module::Packaged::Generator::Role::Logging';
 with    'Module::Packaged::Generator::Role::UrlFetching';
 
 

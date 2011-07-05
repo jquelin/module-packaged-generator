@@ -7,7 +7,7 @@ package Module::Packaged::Generator::Driver;
 
 use Moose;
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- public methods

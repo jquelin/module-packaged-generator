@@ -11,7 +11,7 @@ use MooseX::ClassAttribute;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- class attributes

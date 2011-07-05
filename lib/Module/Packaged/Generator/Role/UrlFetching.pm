@@ -10,7 +10,7 @@ use Moose::Role;
 
 use Module::Packaged::Generator::Utils qw{ $DATADIR };
 
-with 'Module::Packaged::Generator::Role::Loggable';
+with 'Module::Packaged::Generator::Role::Logging';
 
 
 # -- public methods
