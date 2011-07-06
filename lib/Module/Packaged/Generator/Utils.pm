@@ -25,6 +25,7 @@ __END__
 This module exports some subs & variables used in the dist.
 
 The following variables are available:
+
 =over 4
 
 =item * $DATADIR
