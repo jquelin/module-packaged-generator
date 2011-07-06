@@ -6,6 +6,8 @@ package Module::Packaged::Generator::DB;
 # ABSTRACT: database encapsulation
 
 use DBI;
+use File::Copy;
+use File::Temp;
 use Moose;
 use MooseX::Has::Sugar;
 use MooseX::SemiAffordanceAccessor;
@@ -23,22 +25,15 @@ The path to the sqlite database file (a string). Required.
 
 has file => ( ro, isa=>'Str', required );
 
+# temp file holding the db before moving it to final location
+has _file => ( ro, isa=>'File::Temp', default => sub { File::Temp->new } );
+
 
 # -- private attributes
 
 # the dbi handler
 has _dbh => ( rw, isa=>"DBI::db" );
 
-
-# -- initialization
-{
-    sub DEMOLISH {
-        my $self = shift;
-        my $dbh = $self->_dbh;
-        $dbh->commit;
-        $dbh->disconnect;
-    }
-}
 
 # -- public methods
 
@@ -52,12 +47,11 @@ Force database creation.
 
 sub create {
     my $self = shift;
-    my $file = $self->file;
+    my $file = $self->_file->filename;
 
     # create sqlite db
     $self->log_step( "creating sqlite database" );
-    $self->log( "db location: $file" );
-    unlink($file) if -f $file;
+    $self->log_debug( "db location: $file" );
     my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
     $self->_set_dbh( $dbh );
 
@@ -118,6 +112,30 @@ sub create_indices {
     $dbh->do("CREATE INDEX module__pkgname on module ( pkgname );");
 }
 
+
+=method close
+
+    $db->close;
+
+Close database and move it to its final location.
+
+=cut
+
+sub close {
+    my $self = shift;
+
+    # finalize db operations
+    my $dbh = $self->_dbh;
+    $dbh->commit;
+    $dbh->disconnect;
+
+    # moving db
+    $self->log_step( "moving db to final location" );
+    my $file = $self->file;
+    unlink($file) if -f $file;
+    $self->log( "final db location: $file" );
+    move( $self->_file->filename, $file );
+}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;

@@ -116,6 +116,8 @@ sub run {
     $self->log( "${prefix}: done" );
 
     $db->create_indices;
+    $db->close;
+
     $self->log_step( "database is ready" );
 }
 
