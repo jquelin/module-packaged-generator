@@ -18,7 +18,7 @@ with 'Module::Packaged::Generator::Role::UrlFetching';
 
 {
     # parse::cpan::packages::fast object
-    class_has _cpan => ( ro, isa=>'Parse::CPAN::Packages::Fast', builder=>'_build__cpan' );
+    class_has _cpan => ( ro, isa=>'Parse::CPAN::Packages::Fast', lazy_build );
     sub _build__cpan {
         my $self = shift->new;
 
