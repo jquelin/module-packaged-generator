@@ -10,6 +10,7 @@ use Devel::Platform::Info::Linux;
 use Moose;
 use MooseX::Has::Sugar;
 
+use Module::Packaged::Generator::CPAN;
 use Module::Packaged::Generator::DB;
 
 with 'Module::Packaged::Generator::Role::Logging';
@@ -87,7 +88,9 @@ sub run {
     # initialize stuff
     $self->log_step( "initialization" );
     $self->log_debug( "driver name: " . $self->drivername );
-    $self->_driver; # force attribute creation
+    # force attribute creation
+    $self->_driver;
+    Module::Packaged::Generator::CPAN->new->module2dist( "Foo::Bar::Baz");
 
     # fetch the list of available perl modules
     my @modules = $self->_driver->list;

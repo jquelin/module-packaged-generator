@@ -10,27 +10,17 @@ use MooseX::ClassAttribute;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
 
+use Module::Packaged::Generator::CPAN;
+
 with 'Module::Packaged::Generator::Role::Logging';
 with 'Module::Packaged::Generator::Role::UrlFetching';
 
 
 # -- class attributes
 
-{
-    # parse::cpan::packages::fast object
-    class_has _cpan => ( ro, isa=>'Parse::CPAN::Packages::Fast', lazy_build );
-    sub _build__cpan {
-        my $self = shift->new;
-
-        $self->log( "fetching fresh cpan index" );
-        my $file = '02packages.details.txt.gz';
-        my $url  = "http://www.perl.org/CPAN/modules/$file";
-        my $pkgfile = $self->fetch_url( $url, $file );
-
-        $self->log( "parsing $pkgfile" );
-        return Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
-    }
-}
+# parse::cpan::packages::fast object
+class_has _cpan => ( ro, isa=>'Module::Packaged::Generator::CPAN', lazy_build );
+sub _build__cpan { Module::Packaged::Generator::CPAN->new }
 
 
 # -- attributes
@@ -64,10 +54,7 @@ has pkgname => ( ro, isa=>'Str',        required   );
 
 sub _build_dist {
     my $self = shift;
-    my $pkg;
-    eval { $pkg = $self->_cpan->package( $self->name ); };
-    return unless $pkg;
-    return $pkg->distribution->dist;
+    return $self->_cpan->module2dist( $self->name );
 }
 
 1;
