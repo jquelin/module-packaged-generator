@@ -10,25 +10,25 @@ use 5.008;
 use strict;
 use warnings;
 
-package Module::Packaged::Generator::Distribution::Mageia;
+package Module::Packaged::Generator::Driver::Mageia;
 BEGIN {
-  $Module::Packaged::Generator::Distribution::Mageia::VERSION = '1.111040';
+  $Module::Packaged::Generator::Driver::Mageia::VERSION = '1.111890';
 }
 # ABSTRACT: mageia driver to fetch available modules
 
 use Moose;
-use Path::Class;
 
-extends 'Module::Packaged::Generator::Distribution::Mandriva';
+extends 'Module::Packaged::Generator::Driver::URPMI';
 
 
-# -- public methods
+# -- initialization
 
-sub match {
-    my $mgarel = file( '/etc/mageia-release' );
-    return unless -f $mgarel;
-    my $content = $mgarel->slurp;
-    return ( $content =~ /mageia/i );
+sub _build__medias {
+    my $self = shift;
+    my $root = 'http://distrib-coffee.ipsl.jussieu.fr/pub/linux/Mageia/distrib/cauldron/x86_64/media';
+    my @medias = qw{ core nonfree tainted };
+    my $suffix = 'release/media_info/synthesis.hdlist.cz';
+    return { map { $_ => "$root/$_/$suffix" } @medias };
 }
 
 1;
@@ -38,16 +38,15 @@ sub match {
 
 =head1 NAME
 
-Module::Packaged::Generator::Distribution::Mageia - mageia driver to fetch available modules
+Module::Packaged::Generator::Driver::Mageia - mageia driver to fetch available modules
 
 =head1 VERSION
 
-version 1.111040
+version 1.111890
 
 =head1 DESCRIPTION
 
-This module is the L<Module::Packaged::Generator::Distribution> driver
-for Mageia.
+This module is the L<Module::Packaged::Generator::Driver> for Mageia.
 
 =head1 AUTHOR
 

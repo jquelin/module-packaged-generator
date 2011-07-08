@@ -6,52 +6,121 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-use 5.008;
+use 5.012;
 use strict;
 use warnings;
 
 package Module::Packaged::Generator;
 BEGIN {
-  $Module::Packaged::Generator::VERSION = '1.111040';
+  $Module::Packaged::Generator::VERSION = '1.111890';
 }
 # ABSTRACT: build list of modules packaged by a linux distribution
 
 use DBI;
-use List::Util qw{ first };
-use Module::Pluggable
-    require     => 1,
-    sub_name    => 'dists',
-    search_path => __PACKAGE__.'::Distribution';
+use Devel::Platform::Info::Linux;
+use Moose;
+use MooseX::Has::Sugar;
+
+use Module::Packaged::Generator::CPAN;
+use Module::Packaged::Generator::DB;
+
+with 'Module::Packaged::Generator::Role::Logging';
+
+
+# -- public attributes
+{
+
+
+    has file => ( ro, isa=>'Str', lazy_build );
+    sub _build_file {
+        my $self = shift;
+        my $dist = $self->drivername;
+        return "cpan_$dist.db";
+    }
+
+
+
+    has drivername => ( ro, isa=>'Str', lazy_build );
+    sub _build_drivername {
+        my $self = shift;
+        my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
+        return $dist;
+    }
+
+}
+
+
+# -- private attributes
+{
+    # the mpg::db object
+    has _db => ( ro, isa=>'Module::Packaged::Generator::DB', lazy_build );
+    sub _build__db {
+        my $self = shift;
+        return Module::Packaged::Generator::DB->new( file => $self->file );
+    }
+
+    # the driver object
+    has _driver => ( ro, isa=>'Module::Packaged::Generator::Driver', lazy_build );
+    sub _build__driver {
+        my $self = shift;
+
+        my $flavour = $self->drivername;
+        my $driver  = "Module::Packaged::Generator::Driver::$flavour";
+
+        $self->log_debug( "trying to use driver $driver" );
+        eval "use $driver";
+        $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
+        $self->log_fatal( "driver $driver not found" ) if $@;
+
+        return $driver->new;
+    }
+}
 
 
 # -- public methods
 
 
-sub all_drivers { return $_[0]->dists; }
 
-
-
-sub find_driver {
+sub run {
     my $self = shift;
-    return first { $_->match } $self->dists;
-}
 
+    # initialize stuff
+    $self->log_step( "initialization" );
+    $self->log_debug( "driver name: " . $self->drivername );
+    # force attribute creation
+    $self->_driver;
+    Module::Packaged::Generator::CPAN->new->module2dist( "Foo::Bar::Baz");
 
+    # fetch the list of available perl modules
+    my @modules = $self->_driver->list;
+    $self->log( "found " . scalar(@modules) . " perl modules" );
 
-sub create_db {
-    my ($self, $file) = @_;
+    # insert the modules in the database
+    my $db = $self->_db;
+    $db->create;
+    $self->log_step( "populating database" );
+    my $prefix = "inserting modules in db";
+    my $progress = $self->progress_bar( {
+        count     => scalar(@modules),
+        bar_width => 50,
+        remove    => 1,
+        name      => $prefix,
+    } );
+    $progress->minor(0);  # we're so fast now that we don't need minor scale
+    my $next_update = 0;
+    foreach my $i ( 0 .. $#modules ) {
+        my $m = $modules[$i];
+        $db->insert_module($m);
+        $next_update = $progress->update($_)
+            if $i >= $next_update;
+    }
+    $progress->update( scalar(@modules) );
+    $self->log( "${prefix}: done" );
 
-    unlink($file) if -f $file;
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$file", '', '');
-    $dbh->do("
-        CREATE TABLE module (
-            module      TEXT NOT NULL,
-            version     TEXT,
-            dist        TEXT,
-            pkgname     TEXT NOT NULL
-        );
-    ");
-    return $dbh;
+    $db->create_indices;
+    $db->close;
+
+    $self->log_step( "database is ready" );
 }
 
 
@@ -66,7 +135,7 @@ Module::Packaged::Generator - build list of modules packaged by a linux distribu
 
 =head1 VERSION
 
-version 1.111040
+version 1.111890
 
 =head1 DESCRIPTION
 
@@ -78,29 +147,26 @@ Of course, running the utility shipped in this dist will only create the
 database for the current distribution. But that's not our job to do
 crazy manipulation with this data, we just provide the data :-)
 
+=head1 ATTRIBUTES
+
+=head2 file
+
+The path to the database file to be created (a string). Defaults to
+C<cpan_$dist.db>, where C<$dist> is the distribution name.
+
+=head2 drivername
+
+The name of the driver to use (eg, C<Mageia>). Defaults to the actual
+distribution name.
+
 =head1 METHODS
 
-=head2 all_drivers
+=head2 run
 
-    my @drivers = Module::Packaged::Generator->all_drivers();
+    $generator->run;
 
-Return a list of all available drivers supporting a distribution. The
-list is a list of module names (strings) such as
-L<Module::Packaged::Generator::Mandriva>.
-
-=head2 find_driver
-
-    my $driver = Module::Packaged::Generator->find_driver;
-
-Return a driver that can be used on the current machine, or undef if no
-suitable driver was found.
-
-=head2 create_db
-
-    my $dbh = Module::Packaged::Generator->create_db($file);
-
-Creates a sqlite database with the correct schema. Remove the previous
-C<$file> if it exists. Return the handler on the opened database.
+Create the database and populate it according to the driver's list of
+modules.
 
 =head1 SEE ALSO
 

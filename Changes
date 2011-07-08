@@ -1,5 +1,13 @@
 Changelog for Module-Packaged-Generator
 
+1.111890  2011-07-08 11:30:52 Europe/Paris
+ - possibility to specify path to database file
+ - possibility to override driver name
+ - better log handling: possibility to be quiet or verbose
+ - refresh mageia & mandriva synthesises before populating db
+ - cpan index always refreshed before populating db
+ - better encapsulation
+
 1.111040  2011-04-14 12:54:36 Europe/Paris
  - new driver for mageia linux
  - speed improvements: no autocommit, using parse::cpan::packages::fast

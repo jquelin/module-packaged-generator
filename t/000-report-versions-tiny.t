@@ -12,7 +12,7 @@ my $v = "\n";
 
 eval {                     # no excuses!
     # report our Perl details
-    my $want = '5.010';
+    my $want = '5.012';
     my $pv = ($^V || $]);
     $v .= "perl: $pv (wanted $want) on $^O from $^X\n\n";
 };
@@ -49,19 +49,27 @@ sub pmver {
 }
 
 eval { $v .= pmver('DBI','any version') };
+eval { $v .= pmver('Devel::Platform::Info::Linux','any version') };
+eval { $v .= pmver('Exporter::Lite','any version') };
+eval { $v .= pmver('File::Copy','any version') };
 eval { $v .= pmver('File::Find','any version') };
 eval { $v .= pmver('File::HomeDir::PathClass','any version') };
 eval { $v .= pmver('File::Spec::Functions','any version') };
 eval { $v .= pmver('File::Temp','any version') };
 eval { $v .= pmver('FindBin','any version') };
-eval { $v .= pmver('List::Util','any version') };
+eval { $v .= pmver('Getopt::Long::Descriptive','any version') };
+eval { $v .= pmver('LWP::Simple','any version') };
+eval { $v .= pmver('Log::Dispatchouli','any version') };
 eval { $v .= pmver('Module::Build','0.3601') };
-eval { $v .= pmver('Module::Pluggable','any version') };
 eval { $v .= pmver('Moose','any version') };
+eval { $v .= pmver('Moose::Role','any version') };
+eval { $v .= pmver('MooseX::ClassAttribute','any version') };
 eval { $v .= pmver('MooseX::Has::Sugar','any version') };
+eval { $v .= pmver('MooseX::SemiAffordanceAccessor','any version') };
+eval { $v .= pmver('MooseX::Singleton','any version') };
 eval { $v .= pmver('Parse::CPAN::Packages::Fast','any version') };
-eval { $v .= pmver('Path::Class','any version') };
 eval { $v .= pmver('Term::ProgressBar::Quiet','any version') };
+eval { $v .= pmver('Test::MockObject','any version') };
 eval { $v .= pmver('Test::More','0.88') };
 
 

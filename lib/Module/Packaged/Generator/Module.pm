@@ -6,21 +6,32 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-use 5.008;
+use 5.012;
 use strict;
 use warnings;
 
 package Module::Packaged::Generator::Module;
 BEGIN {
-  $Module::Packaged::Generator::Module::VERSION = '1.111040';
+  $Module::Packaged::Generator::Module::VERSION = '1.111890';
 }
 # ABSTRACT: a class representing a perl module
 
-use File::HomeDir::PathClass qw{ my_home };
 use Moose;
+use MooseX::ClassAttribute;
 use MooseX::Has::Sugar;
 use Parse::CPAN::Packages::Fast;
-use Path::Class;
+
+use Module::Packaged::Generator::CPAN;
+
+with 'Module::Packaged::Generator::Role::Logging';
+with 'Module::Packaged::Generator::Role::UrlFetching';
+
+
+# -- class attributes
+
+# parse::cpan::packages::fast object
+class_has _cpan => ( ro, isa=>'Module::Packaged::Generator::CPAN', lazy_build );
+sub _build__cpan { Module::Packaged::Generator::CPAN->new }
 
 
 # -- attributes
@@ -31,21 +42,9 @@ has version => ( ro, isa=>'Maybe[Str]'             );
 has dist    => ( ro, isa=>'Maybe[Str]', lazy_build );
 has pkgname => ( ro, isa=>'Str',        required   );
 
-my $CPAN;
-{
-    # try to locate cpanplus index
-    my $pkgfile = my_home()->file( '.cpanplus', '02packages.details.txt.gz' );
-    die "couldn't find a cpanplus index in $pkgfile\n"
-        unless -f $pkgfile;
-    $CPAN = Parse::CPAN::Packages::Fast->new($pkgfile->stringify);
-}
-
 sub _build_dist {
     my $self = shift;
-    my $pkg;
-    eval { $pkg = $CPAN->package( $self->name ); };
-    return unless $pkg;
-    return $pkg->distribution->dist;
+    return $self->_cpan->module2dist( $self->name );
 }
 
 1;
@@ -59,7 +58,7 @@ Module::Packaged::Generator::Module - a class representing a perl module
 
 =head1 VERSION
 
-version 1.111040
+version 1.111890
 
 =head1 DESCRIPTION
 
