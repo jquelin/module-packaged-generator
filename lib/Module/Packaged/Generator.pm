@@ -32,6 +32,22 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
         my $dist = $self->drivername;
         return "cpan_$dist.db";
     }
+
+
+=attr drivername
+
+The name of the driver to use (eg, C<Mageia>). Defaults to the actual
+distribution name.
+
+=cut
+
+    has drivername => ( ro, isa=>'Str', lazy_build );
+    sub _build_drivername {
+        my $self = shift;
+        my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
+        return $dist;
+    }
+
 }
 
 
@@ -42,14 +58,6 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
     sub _build__db {
         my $self = shift;
         return Module::Packaged::Generator::DB->new( file => $self->file );
-    }
-
-    # the linux distribution name
-    has drivername => ( ro, isa=>'Str', lazy_build );
-    sub _build_drivername {
-        my $self = shift;
-        my $dist = Devel::Platform::Info::Linux->new->get_info->{oslabel};
-        return $dist;
     }
 
     # the driver object
@@ -63,7 +71,7 @@ C<cpan_$dist.db>, where C<$dist> is the distribution name.
         $self->log_debug( "trying to use driver $driver" );
         eval "use $driver";
         $self->log_fatal( $@ ) if $@ =~ /Compilation failed/;
-        $self->log_fatal( "no driver found for this distribution" ) if $@;
+        $self->log_fatal( "driver $driver not found" ) if $@;
 
         return $driver->new;
     }

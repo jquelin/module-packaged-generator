@@ -28,11 +28,12 @@ with 'Module::Packaged::Generator::Role::Logging';
 # parse command-line options
 my ($opt, $usage) = describe_options(
     '%c %o',
-    [ 'file|f=s'  => "path to the database file"       ],
+    [ 'file|f=s'   => "path to the database file"       ],
+    [ 'driver|d=s' => "force driver to use"             ],
     [],
-    [ 'quiet|q'   => "don't print anything but errors" ],
-    [ 'verbose|v' => "print debug messages"            ],
-    [ 'help|h'    => "print usage message and exit"    ],
+    [ 'quiet|q'    => "don't print anything but errors" ],
+    [ 'verbose|v'  => "print debug messages"            ],
+    [ 'help|h'     => "print usage message and exit"    ],
 );
 print($usage->text), exit if $opt->help;
 
@@ -43,7 +44,8 @@ $self->set_muted( $opt->quiet );
 
 # run the whole show
 my %param;
-$param{ file } = $opt->file if $opt->file;
+$param{ file }       = $opt->file   if $opt->file;
+$param{ drivername } = $opt->driver if $opt->driver;
 Module::Packaged::Generator->new(\%param)->run;
 
 exit;
