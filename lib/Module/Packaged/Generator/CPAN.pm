@@ -12,7 +12,7 @@ use warnings;
 
 package Module::Packaged::Generator::CPAN;
 BEGIN {
-  $Module::Packaged::Generator::CPAN::VERSION = '1.111890';
+  $Module::Packaged::Generator::CPAN::VERSION = '1.111930';
 }
 # ABSTRACT: interface to Parse::CPAN::Packages::Fast
 
@@ -63,7 +63,7 @@ Module::Packaged::Generator::CPAN - interface to Parse::CPAN::Packages::Fast
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

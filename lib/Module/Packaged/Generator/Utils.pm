@@ -12,7 +12,7 @@ use warnings;
 
 package Module::Packaged::Generator::Utils;
 BEGIN {
-  $Module::Packaged::Generator::Utils::VERSION = '1.111890';
+  $Module::Packaged::Generator::Utils::VERSION = '1.111930';
 }
 # ABSTRACT: various subs and constants used in the dist
 
@@ -39,7 +39,7 @@ Module::Packaged::Generator::Utils - various subs and constants used in the dist
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

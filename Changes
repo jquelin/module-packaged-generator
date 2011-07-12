@@ -1,5 +1,8 @@
 Changelog for Module-Packaged-Generator
 
+1.111930  2011-07-12 16:50:25 Europe/Paris
+ - loosen minimum perl version requirement
+
 1.111890  2011-07-08 11:30:52 Europe/Paris
  - possibility to specify path to database file
  - possibility to override driver name

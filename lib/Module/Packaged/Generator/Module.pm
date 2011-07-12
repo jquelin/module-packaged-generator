@@ -6,13 +6,13 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-use 5.012;
+use 5.010;
 use strict;
 use warnings;
 
 package Module::Packaged::Generator::Module;
 BEGIN {
-  $Module::Packaged::Generator::Module::VERSION = '1.111890';
+  $Module::Packaged::Generator::Module::VERSION = '1.111930';
 }
 # ABSTRACT: a class representing a perl module
 
@@ -58,7 +58,7 @@ Module::Packaged::Generator::Module - a class representing a perl module
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

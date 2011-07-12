@@ -6,13 +6,13 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-use 5.012;
+use 5.010;
 use strict;
 use warnings;
 
 package Module::Packaged::Generator::Role::Logging;
 BEGIN {
-  $Module::Packaged::Generator::Role::Logging::VERSION = '1.111890';
+  $Module::Packaged::Generator::Role::Logging::VERSION = '1.111930';
 }
 # ABSTRACT: role to provide easy logging
 
@@ -49,7 +49,7 @@ Module::Packaged::Generator::Role::Logging - role to provide easy logging
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

@@ -14,7 +14,7 @@ use warnings;
 
 package pkgcpan;
 BEGIN {
-  $pkgcpan::VERSION = '1.111890';
+  $pkgcpan::VERSION = '1.111930';
 }
 # ABSTRACT: create db of available Perl modules
 
@@ -70,7 +70,7 @@ pkgcpan - create db of available Perl modules
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 SYNOPSIS
 

@@ -19,7 +19,7 @@ my %module_build_args = (
     'Jerome Quelin'
   ],
   'dist_name' => 'Module-Packaged-Generator',
-  'dist_version' => '1.111890',
+  'dist_version' => '1.111930',
   'license' => 'perl',
   'module_name' => 'Module::Packaged::Generator',
   'recommends' => {},
@@ -45,7 +45,7 @@ my %module_build_args = (
     'Parse::CPAN::Packages::Fast' => '0',
     'Term::ProgressBar::Quiet' => '0',
     'Test::MockObject' => '0',
-    'perl' => '5.012'
+    'perl' => '5.010'
   },
   'script_files' => [
     'bin/pkgcpan'

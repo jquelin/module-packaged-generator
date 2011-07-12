@@ -12,7 +12,7 @@ use warnings;
 
 package Module::Packaged::Generator::Driver::Mageia;
 BEGIN {
-  $Module::Packaged::Generator::Driver::Mageia::VERSION = '1.111890';
+  $Module::Packaged::Generator::Driver::Mageia::VERSION = '1.111930';
 }
 # ABSTRACT: mageia driver to fetch available modules
 
@@ -42,7 +42,7 @@ Module::Packaged::Generator::Driver::Mageia - mageia driver to fetch available m
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

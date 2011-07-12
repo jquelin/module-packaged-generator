@@ -12,7 +12,7 @@ use warnings;
 
 package Module::Packaged::Generator::Driver;
 BEGIN {
-  $Module::Packaged::Generator::Driver::VERSION = '1.111890';
+  $Module::Packaged::Generator::Driver::VERSION = '1.111930';
 }
 # ABSTRACT: base class for all drivers
 
@@ -38,7 +38,7 @@ Module::Packaged::Generator::Driver - base class for all drivers
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 

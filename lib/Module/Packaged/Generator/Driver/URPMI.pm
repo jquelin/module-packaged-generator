@@ -12,7 +12,7 @@ use warnings;
 
 package Module::Packaged::Generator::Driver::URPMI;
 BEGIN {
-  $Module::Packaged::Generator::Driver::URPMI::VERSION = '1.111890';
+  $Module::Packaged::Generator::Driver::URPMI::VERSION = '1.111930';
 }
 # ABSTRACT: urpmi-based driver to fetch available modules
 
@@ -109,7 +109,7 @@ Module::Packaged::Generator::Driver::URPMI - urpmi-based driver to fetch availab
 
 =head1 VERSION
 
-version 1.111890
+version 1.111930
 
 =head1 DESCRIPTION
 
